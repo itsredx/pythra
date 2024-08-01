@@ -20,7 +20,6 @@ class EdgeInsets:
     def to_css(self):
         return f"{self.top}px {self.right}px {self.bottom}px {self.left}px"
 
-
 class Alignment:
     def __init__(self, justify_content, align_items):
         self.justify_content = justify_content
@@ -65,7 +64,6 @@ class Alignment:
     def to_css(self):
         return f"display: flex; justify-content: {self.justify_content}; align-items: {self.align_items};"
 
-
 class BoxConstraints:
     def __init__(self, min_width=None, max_width=None, min_height=None, max_height=None):
         self.min_width = min_width
@@ -85,7 +83,6 @@ class BoxConstraints:
             styles.append(f"max-height: {self.max_height}px;")
         return " ".join(styles)
 
-
 class Colors:
     @staticmethod
     def color(color_name):
@@ -96,7 +93,6 @@ class Colors:
         if not hex_code.startswith("#"):
             raise ValueError("Hex code should start with #")
         return hex_code
-
 
 class BoxDecoration:
     def __init__(self, color=None, border=None, borderRadius=None, boxShadow=None, transform=None):
@@ -123,14 +119,12 @@ class BoxDecoration:
             styles.append(f"transform: {self.transform};")
         return ' '.join(styles)
 
-
 class ClipBehavior(Enum):
     NONE = 'none'
     HARD_EDGE = 'hardEdge'
     ANTI_ALIAS = 'antiAlias'
     ANTI_ALIAS_WITH_SAVE_LAYER = 'antiAliasWithSaveLayer'
  
-
 class MainAxisAlignment:
     START = 'flex-start'
     END = 'flex-end'
@@ -178,9 +172,6 @@ class TextStyle:
             style += f"text-decoration: {self.textDecoration};"
         return style
 
-
-# framework/styles.py
-
 class ButtonStyle:
     def __init__(self, backgroundColor=None, foregroundColor=None, overlayColor=None, shadowColor=None,
                  elevation=None, padding=None, minimumSize=None, side=None, shape=None, 
@@ -221,7 +212,6 @@ class ButtonStyle:
         if self.icon:
             styles.append(f"background-image: url({self.icon}); background-size: contain; background-repeat: no-repeat;")
         return ' '.join(styles)
-
 
 class ScrollPhysics:
     BOUNCING = 'bouncing'
