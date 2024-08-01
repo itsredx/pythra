@@ -1,7 +1,7 @@
 
             <html>
             <head>
-                <title>Button App</title>
+                <title>Grid App</title>
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
                 <script src="main.js"></script>
             </head>
@@ -12,7 +12,7 @@
             
         <header style="background-color: blue;box-shadow: 0 5px 5px rgba(0, 0, 0, 0.2);height: 56px; display: flex; align-items: center;">
             <div style="margin-left: 16px;"></div>
-            <div style="flex: 1; text-align: center;"><p style='color: white;font-size: 20px;text-align: center;'>Button pressed 0 times</p></div>
+            <div style="flex: 1; text-align: center;"><p style='color: white;font-size: 20px;text-align: center;'>Grid App</p></div>
             <div style="margin-right: 16px;"></div>
             
         </header>
@@ -21,11 +21,11 @@
                 
         <div style='position: relative; display: flex; justify-content: center; align-items: flex-start; 20px 20px 20px 20px 10px 10px 10px 10px width: 400px; height: 1000px; background-color: lightgrey;  '>
             <div style='display: flex; flex-direction: column; justify-content: flex-start; align-items: center; direction: ltr; vertical-align: alphabetic;'><p style='color: black;font-size: 20px;text-align: center;'>Button pressed 0 times</p>
-        <button id='icon_button_136701883128704' style='background-color: blue; color: white; padding: 10px 10px 10px 10px; font-size: 18px;' onclick='handleClick("increment_count")'>
+        <button id='icon_button_130717724803200' style='background-color: blue; color: white; padding: 10px 10px 10px 10px; font-size: 18px;' onclick='handleClick("increment_count")'>
             <i class='fa fa-plus' style='font-size: 24px; color: black;'></i>
         </button>
         
-        <button id='icon_button_136701883128800' style='background-color: red; color: white; padding: 10px 10px 10px 10px; font-size: 18px;' onclick='handleClick("decrement_count")'>
+        <button id='icon_button_130717724803824' style='background-color: red; color: white; padding: 10px 10px 10px 10px; font-size: 18px;' onclick='handleClick("decrement_count")'>
             <i class='fa fa-minus' style='font-size: 24px; color: black;'></i>
         </button>
         
@@ -47,6 +47,20 @@
             
             
         </div>
+        <style>
+            .drawer-closed {
+                transform: translateX(-100%);
+            }
+            .drawer-open {
+                transform: translateX(0);
+            }
+            .scrim-hidden {
+                display: none;
+            }
+            .scrim-visible {
+                display: block;
+            }
+        </style>
         
             </body>
             </html>

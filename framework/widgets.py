@@ -472,16 +472,9 @@ class Scaffold(Widget):
         end_drawer_html = self.endDrawer.to_html() if self.endDrawer else ""
         bottom_sheet_html = self.bottomSheet.to_html() if self.bottomSheet else ""
         footer_buttons_html = ''.join([button.to_html() for button in (self.persistentFooterButtons or [])])
-        
-        # Placeholder for drawer handling logic (e.g., show/hide behavior, drawer edge drag width)
-        
-        # Placeholder for background color handling
+
         background_color_style = f"background-color: {self.backgroundColor};"
-
-        # Handling body extension behind app bar or body
         extend_body_style = "position: absolute; top: 0; bottom: 0; left: 0; right: 0;" if self.extendBody or self.extendBodyBehindAppBar else ""
-
-        # Adjust body margin if AppBar is present and not extending body behind it
         body_margin_top = "margin-top: 0px;" if self.appBar and not self.extendBodyBehindAppBar else ""
 
         return f"""
@@ -499,6 +492,20 @@ class Scaffold(Widget):
             {bottom_navigation_bar_html}
             {end_drawer_html}
         </div>
+        <style>
+            .drawer-closed {{
+                transform: translateX(-100%);
+            }}
+            .drawer-open {{
+                transform: translateX(0);
+            }}
+            .scrim-hidden {{
+                display: none;
+            }}
+            .scrim-visible {{
+                display: block;
+            }}
+        </style>
         """
 
 
@@ -516,10 +523,35 @@ class Drawer(Widget):
         self.children = children
         self.key = key
 
-    def to_html(self):
+    def to_html(self, drawer_open=False):
         children_html = ''.join([child.to_html() for child in self.children])
+        drawer_class = "drawer-open" if drawer_open else "drawer-closed"
         return f"""
-        <div style="position: fixed; top: 0; left: 0; width: 250px; height: 100%; background-color: #ffffff; box-shadow: 2px 0 5px rgba(0,0,0,0.5);">
+        <div id="drawer" class="{drawer_class}" style="position: fixed; top: 0; left: 0; width: 250px; height: 100%; background-color: #ffffff; box-shadow: 2px 0 5px rgba(0,0,0,0.5); transition: transform 0.3s ease;">
             {children_html}
         </div>
         """
+
+class ListTile(Widget):
+    def __init__(self, leading=None, title=None, subtitle=None, onTap=None):
+        self.leading = leading
+        self.title = title
+        self.subtitle = subtitle
+        self.onTap = onTap
+
+    def to_html(self):
+        leading_html = self.leading.to_html() if self.leading else ""
+        title_html = self.title.to_html() if self.title else ""
+        subtitle_html = self.subtitle.to_html() if self.subtitle else ""
+        onClick = f'onclick="handleClick(\'{self.onTap}\')"' if self.onTap else ""
+
+        return f"""
+        <div class="list-tile" style="display: flex; align-items: center; padding: 10px; cursor: pointer;" {onClick}>
+            <div style="margin-right: 10px;">{leading_html}</div>
+            <div>
+                <div>{title_html}</div>
+                <div style="color: grey;">{subtitle_html}</div>
+            </div>
+        </div>
+        """
+

@@ -12,3 +12,16 @@ function handleClick(callback_name) {
     }
 }
 
+function openDrawer() {
+    var drawer = document.getElementById("drawer");
+    var scrim = document.getElementById("drawer-scrim");
+    drawer.style.left = "0";
+    scrim.style.display = "block";
+}
+
+function closeDrawer() {
+    var drawer = document.getElementById("drawer");
+    var scrim = document.getElementById("drawer-scrim");
+    drawer.style.left = "-250px";
+    scrim.style.display = "none";
+}

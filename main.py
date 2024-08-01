@@ -4,7 +4,7 @@ from framework.core import Framework
 from framework.widgets import *
 from framework.styles import *
 
-class ButtonApp:
+class GridApp:
     def __init__(self):
         self.framework = Framework()
         self.count = 0
@@ -93,7 +93,7 @@ class ButtonApp:
         )
 
         title = Text(
-            data=f'Button pressed {self.count} times',
+            data=f'Grid App',
             style=TextStyle(fontSize=20, color=Colors.color('white')),
             textAlign='center'
         )
@@ -115,8 +115,8 @@ class ButtonApp:
         self.framework.api.register_callback('increment_count', self.increment_count)
         self.framework.api.register_callback('decrement_count', self.decrement_count)
         self.update_ui()
-        self.framework.run(title='Button App')
+        self.framework.run(title='Grid App')
 
 if __name__ == "__main__":
-    app = ButtonApp()
+    app = GridApp()
     app.run()
