@@ -1,7 +1,7 @@
 import yaml
 import os
 from .base import Widget
-from framework.styles import EdgeInsets, Alignment, BoxConstraints, Colors, BoxDecoration, ClipBehavior, MainAxisAlignment, CrossAxisAlignment, TextStyle, ButtonStyle, Axis, ScrollPhysics, Overflow, StackFit, TextDirection, TextAlign, ImageFit, ShadowColor, TextBaseline
+from framework.styles import EdgeInsets, Alignment, BoxConstraints, Colors, BoxDecoration, ClipBehavior, MainAxisAlignment, CrossAxisAlignment, TextStyle, ButtonStyle, Axis, ScrollPhysics, Overflow, StackFit, TextDirection, TextAlign, ImageFit, ShadowColor, TextBaseline,mainAxisSize, VerticalDirection
 from framework.config import Config
 
 config = Config()
@@ -128,7 +128,7 @@ class FloatingActionButton(Widget):
  
 
 class Column(Widget):
-    def __init__(self, children=[], key=None, mainAxisAlignment=MainAxisAlignment.START, mainAxisSize='max', crossAxisAlignment=CrossAxisAlignment.CENTER, textDirection=TextDirection.LTR, verticalDirection='down', textBaseline=TextBaseline.alphabetic):
+    def __init__(self, children=[], key=None, mainAxisAlignment=MainAxisAlignment.START, mainAxisSize= MainAxisSize.MAX, crossAxisAlignment=CrossAxisAlignment.CENTER, textDirection=TextDirection.LTR, verticalDirection= VerticalDirection.DOWN, textBaseline=TextBaseline.alphabetic):
         self.children = children
         self.key = key
         self.mainAxisAlignment = mainAxisAlignment
@@ -152,13 +152,15 @@ class Column(Widget):
 
         if self.mainAxisSize == 'min':
             styles += "height: auto;"
+        elif self.mainAxisSize == 'max':
+            styles += "width: 100%;"
 
         return f"<div style='{styles}'>{children_html}</div>"
 
 
 
 class Row(Widget):
-    def __init__(self, children=[], key=None, mainAxisAlignment=MainAxisAlignment.START, mainAxisSize='max', crossAxisAlignment=CrossAxisAlignment.CENTER, textDirection=TextDirection.LTR, verticalDirection='down', textBaseline = TextBaseline.alphabetic):
+    def __init__(self, children=[], key=None, mainAxisAlignment=MainAxisAlignment.START, mainAxisSize=MainAxisSize.MAX, crossAxisAlignment=CrossAxisAlignment.CENTER, textDirection=TextDirection.LTR, verticalDirection= VerticalDirection.DOWN, textBaseline = TextBaseline.alphabetic):
         self.children = children
         self.key = key
         self.mainAxisAlignment = mainAxisAlignment

@@ -304,3 +304,7 @@ class TextDirection(Enum):
 class TextBaseline():
     alphabetic = 'text-bottom'
     ideographic = 'middle'
+
+class VerticalDirection():
+    DOWN = 'down'
+    UP = 'up'
