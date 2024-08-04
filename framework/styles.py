@@ -64,6 +64,25 @@ class Alignment:
     def to_css(self):
         return f"display: flex; justify-content: {self.justify_content}; align-items: {self.align_items};"
 
+class TextAlign:
+    def __init__(self, text_align):
+        self.text_align = text_align
+
+    @staticmethod
+    def center():
+        return TextAlign('center')
+
+    @staticmethod
+    def left():
+        return TextAlign('flex-start')
+
+    @staticmethod
+    def right():
+        return TextAlign('flex-end')
+
+    def to_css(self):
+        return f"{self.text_align};"
+
 class BoxConstraints:
     def __init__(self, min_width=None, max_width=None, min_height=None, max_height=None):
         self.min_width = min_width
@@ -93,6 +112,14 @@ class Colors:
         if not hex_code.startswith("#"):
             raise ValueError("Hex code should start with #")
         return hex_code
+
+    @staticmethod
+    def rgba(red, blue, green, alpha):
+        return f"rgba({red}, {blue}, {green}, {alpha})"
+
+class ShadowColor:
+    def rgba(red, blue, green, alpha):
+        return f"rgba({red}, {blue}, {green}, {alpha})"
 
 class BoxDecoration:
     def __init__(self, color=None, border=None, borderRadius=None, boxShadow=None, transform=None):
@@ -125,6 +152,17 @@ class ClipBehavior(Enum):
     ANTI_ALIAS = 'antiAlias'
     ANTI_ALIAS_WITH_SAVE_LAYER = 'antiAliasWithSaveLayer'
  
+class ImageFit():
+    CONTAIN = 'contain'
+    COVER = 'cover'
+    FILL = 'fill'
+    NONE = 'none'
+    SCALE_DOWN = 'scale-down'
+
+class mainAxisSize:
+    MIN = 'min'
+    MAX = 'max'
+
 class MainAxisAlignment:
     START = 'flex-start'
     END = 'flex-end'
@@ -172,6 +210,35 @@ class TextStyle:
             style += f"text-decoration: {self.textDecoration};"
         return style
 
+
+class BorderStyle:
+    NONE = 'none'
+    DOTTED = 'dotted'
+    DASHED = 'dashed'
+    SOLID = 'solid'
+    DOUBLE ='double'
+    GROOVE = 'groove'
+    RIDGE = 'ridge'
+    INSET = 'inset'
+    OUTSET = 'outset'
+    HIDDEN = 'hidden'
+
+
+class BorderSide:
+    def __init__(self, width=None, style=None, color=None, borderRadius=None):
+        self.width = width
+        self.style = style
+        self.color = color
+        self.borderRadius = borderRadius
+
+    def to_css(self):
+        
+        width = f"border-width: {self.width}px;" if self.width else ''
+        style = f"border-style: {self.style};" if self.style else ''
+        color = f"border-color: {self.color};" if self.color else ''
+        radius = f"border-radius: {self.borderRadius}px;" if self.borderRadius else ''
+        return f"{width} {style} {color} {radius}"
+
 class ButtonStyle:
     def __init__(self, backgroundColor=None, foregroundColor=None, overlayColor=None, shadowColor=None,
                  elevation=None, padding=None, minimumSize=None, side=None, shape=None, 
@@ -202,7 +269,7 @@ class ButtonStyle:
         if self.minimumSize:
             styles.append(f"min-width: {self.minimumSize[0]}px; min-height: {self.minimumSize[1]}px;")
         if self.side:
-            styles.append(f"border: {self.side};")
+            styles.append(f"{self.side.to_css()}")
         if self.shape:
             styles.append(f"border-radius: {self.shape};")
         if self.textStyle:
@@ -233,3 +300,7 @@ class StackFit(Enum):
 class TextDirection(Enum):
     LTR = 'ltr'
     RTL = 'rtl'
+
+class TextBaseline():
+    alphabetic = 'text-bottom'
+    ideographic = 'middle'

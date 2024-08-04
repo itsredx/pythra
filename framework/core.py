@@ -1,9 +1,14 @@
 # framework/core.py
-
+import importlib
 import os
+import inspect
+import sys
 import webview
 from .widgets import Container, Column, IconButton, Icon, Text
 from .api import Api
+from .config import Config
+from .server import AssetServer
+
 
 
 class Framework:
@@ -11,17 +16,20 @@ class Framework:
         self.api = Api()
         self.root_widget = None
         self.window = None
+        self.asset_server = AssetServer(directory='assets', port=8000)
+        self.asset_server.start()
 
     def set_root(self, widget):
         self.root_widget = widget
         self.collect_callbacks(widget)
+        
         if self.window:
             self.update_content()
 
     def run(self, title):
         if not self.root_widget:
             raise ValueError("Root widget not set. Use set_root() to define the root widget.")
-
+        
         html_content = self.root_widget.to_html()
         html_file = 'web/index.html'
         os.makedirs('web', exist_ok=True)
@@ -56,4 +64,6 @@ class Framework:
             html_content = self.root_widget.to_html()
             script = f'document.body.innerHTML = `{html_content}`;'
             self.window.evaluate_js(script)
+
+
 

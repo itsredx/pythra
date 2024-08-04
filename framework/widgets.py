@@ -1,7 +1,7 @@
 import yaml
 import os
 from .base import Widget
-from framework.styles import EdgeInsets, Alignment, BoxConstraints, Colors, BoxDecoration, ClipBehavior, MainAxisAlignment, CrossAxisAlignment, TextStyle, ButtonStyle, Axis, ScrollPhysics, Overflow, StackFit, TextDirection
+from framework.styles import EdgeInsets, Alignment, BoxConstraints, Colors, BoxDecoration, ClipBehavior, MainAxisAlignment, CrossAxisAlignment, TextStyle, ButtonStyle, Axis, ScrollPhysics, Overflow, StackFit, TextDirection, TextAlign, ImageFit, ShadowColor, TextBaseline
 from framework.config import Config
 
 config = Config()
@@ -13,6 +13,7 @@ class Widget:
 
 
 # framework/widgets.py
+
 
 class Container(Widget):
     def __init__(self, child=None, padding=None, color=None, decoration=None, foregroundDecoration=None, width=None, height=None, constraints=None, margin=None, transform=None, alignment=None, clipBehavior=None):
@@ -38,7 +39,6 @@ class Container(Widget):
         decoration_str = self.decoration.to_css() if self.decoration else ''
         foregroundDecoration_str = self.foregroundDecoration.to_css() if self.foregroundDecoration else ''
         alignment_str = self.alignment.to_css() if self.alignment else ''
-        
         clip_str = f'overflow: hidden;' if self.clipBehavior else ''
 
         child_html = self.child.to_html() if self.child else ''
@@ -50,7 +50,6 @@ class Container(Widget):
         </div>
         """
 
-
 class Text(Widget):
     def __init__(self, data, key=None, style=None, textAlign=None, overflow=None):
         self.data = data
@@ -61,9 +60,10 @@ class Text(Widget):
 
     def to_html(self):
         style = self.style.to_css()
+        text_align_str = self.textAlign if self.textAlign else ''
 
         if self.textAlign:
-            style += f"text-align: {self.textAlign};"
+            style += f"text-align: {text_align_str};"
         if self.overflow:
             style += f"overflow: {self.overflow};"
 
@@ -119,16 +119,16 @@ class FloatingActionButton(Widget):
         self.key = key
 
     def to_html(self):
-        onClick = f"onclick='{self.onPressed}'" if self.onPressed else ""
+        onClick = f"onclick='handleClick(\"{self.onPressed}\")'" if self.onPressed else ""
         return f"""
-        <button style="position: fixed; bottom: 16px; right: 16px; border-radius: 50%; width: 56px; height: 56px; background-color: #f50057; color: white; border: none; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); {onClick}">
+        <button style="position: fixed; bottom: 16px; right: 16px; border-radius: 50%; width: 56px; height: 56px; background-color: #f50057; color: white; border: none; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2);" {onClick}>
             {self.child.to_html() if self.child else ''}
         </button>
         """
  
 
 class Column(Widget):
-    def __init__(self, children=[], key=None, mainAxisAlignment=MainAxisAlignment.START, mainAxisSize='max', crossAxisAlignment=CrossAxisAlignment.CENTER, textDirection='ltr', verticalDirection='down', textBaseline='alphabetic'):
+    def __init__(self, children=[], key=None, mainAxisAlignment=MainAxisAlignment.START, mainAxisSize='max', crossAxisAlignment=CrossAxisAlignment.CENTER, textDirection=TextDirection.LTR, verticalDirection='down', textBaseline=TextBaseline.alphabetic):
         self.children = children
         self.key = key
         self.mainAxisAlignment = mainAxisAlignment
@@ -158,7 +158,7 @@ class Column(Widget):
 
 
 class Row(Widget):
-    def __init__(self, children=[], key=None, mainAxisAlignment=MainAxisAlignment.START, mainAxisSize='max', crossAxisAlignment=CrossAxisAlignment.CENTER, textDirection='ltr', verticalDirection='down', textBaseline='alphabetic'):
+    def __init__(self, children=[], key=None, mainAxisAlignment=MainAxisAlignment.START, mainAxisSize='max', crossAxisAlignment=CrossAxisAlignment.CENTER, textDirection=TextDirection.LTR, verticalDirection='down', textBaseline = TextBaseline.alphabetic):
         self.children = children
         self.key = key
         self.mainAxisAlignment = mainAxisAlignment
@@ -182,12 +182,14 @@ class Row(Widget):
 
         if self.mainAxisSize == 'min':
             styles += "width: auto;"
+        elif self.mainAxisSize == 'max':
+            styles += "width: 100%;"
 
         return f"<div style='{styles}'>{children_html}</div>"
         
 
 class Image(Widget):
-    def __init__(self, image, width=None, height=None, fit='contain', alignment='center'):
+    def __init__(self, image, width=None, height=None, fit=ImageFit.CONTAIN, alignment='center'):
         self.image = image
         self.width = width
         self.height = height
@@ -382,35 +384,46 @@ class Spacer(Widget):
         
 
 class AppBar(Widget):
-    def __init__(self, title=None, actions=None, leading=None, backgroundColor=None, elevation=None, bottom=None):
+    def __init__(self, title=None, actions=None, leading=None, backgroundColor=None, elevation=None, centerTitle=None, titleSpacing=None, pinned=False, bottom=None, shadowColor=Colors.rgba(0,0,0,0.2)):
         self.title = title
         self.actions = actions or []
         self.leading = leading
         self.backgroundColor = backgroundColor
         self.elevation = elevation
+        self.centerTitle = centerTitle
+        self.titleSpacing = titleSpacing
+        self.shadowColor = shadowColor
+        self.pinned = pinned
         self.bottom = bottom
 
     def to_html(self):
+        pinned_style = 'position: fixed; width: 100%;' if self.pinned else 'position: relative;'
         app_bar_style = ""
         if self.backgroundColor:
             app_bar_style += f"background-color: {self.backgroundColor};"
         if self.elevation:
-            app_bar_style += f"box-shadow: 0 {self.elevation}px 5px rgba(0, 0, 0, 0.2);"
+            app_bar_style += f"box-shadow: 0 {self.elevation}px 5px {self.shadowColor};"
         
         # Define height and ensure it affects layout
-        app_bar_style += "height: 56px; display: flex; align-items: center;"
+        app_bar_style += f"height: 56px; display: flex; {pinned_style} z-index: 1; align-items: center;"
 
         leading_html = self.leading.to_html() if self.leading else ""
         title_html = self.title.to_html() if self.title else ""
+        center_title = self.centerTitle.to_html() if self.centerTitle else ""
         actions_html = ''.join([action.to_html() for action in self.actions])
 
         bottom_html = self.bottom.to_html() if self.bottom else ""
 
+        leading_css = f'margin-left: 16px;' if self.leading else ""
+        action_css = f'margin-right: 16px;' if self.actions else ""
+        title_spacing = self.titleSpacing if self.titleSpacing else 10
+
         return f"""
         <header style="{app_bar_style}">
-            <div style="margin-left: 16px;">{leading_html}</div>
-            <div style="flex: 1; text-align: center;">{title_html}</div>
-            <div style="margin-right: 16px;">{actions_html}</div>
+            <div style="{leading_css}">{leading_html}</div>
+            <div style="flex: 1; margin-left: {title_spacing}px;">{title_html}</div>
+            <div style="flex: 1; text-align: center;">{center_title}</div>
+            <div style="{action_css}">{actions_html}</div>
             {bottom_html}
         </header>
         """
@@ -474,14 +487,14 @@ class Scaffold(Widget):
         footer_buttons_html = ''.join([button.to_html() for button in (self.persistentFooterButtons or [])])
 
         background_color_style = f"background-color: {self.backgroundColor};"
-        extend_body_style = "position: absolute; top: 0; bottom: 0; left: 0; right: 0;" if self.extendBody or self.extendBodyBehindAppBar else ""
+        extend_body_style = "position: absolute; top: 56; bottom: 0; left: 0; right: 0;" if self.extendBody or self.extendBodyBehindAppBar else ""
         body_margin_top = "margin-top: 0px;" if self.appBar and not self.extendBodyBehindAppBar else ""
 
         return f"""
         <div style="position: relative; height: 100%; width: 100%; {background_color_style}">
             {drawer_html}
             {appBar_html}
-            <div style="position: relative; {extend_body_style} {body_margin_top}">
+            <div style="position: relative; z-index: 0; {extend_body_style} {body_margin_top}">
                 {body_html}
             </div>
             {floating_action_button_html}
@@ -508,13 +521,14 @@ class Scaffold(Widget):
         </style>
         """
 
-
 class Body(Widget):
     def __init__(self, child=None):
         self.child = child
 
     def to_html(self):
-        return f"<div style='flex: 1;'>{self.child.to_html() if self.child else ''}</div>"
+        child_html = self.child.to_html() if self.child else ''
+        
+        return f"<div style='flex: 1;'>{child_html}</div>"
 
         
 

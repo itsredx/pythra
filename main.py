@@ -4,10 +4,12 @@ from framework.core import Framework
 from framework.widgets import *
 from framework.styles import *
 
+
 class GridApp:
     def __init__(self):
         self.framework = Framework()
         self.count = 0
+
 
     def increment_count(self):
         self.count += 1
@@ -27,15 +29,17 @@ class GridApp:
         button_style_increment = ButtonStyle(
             backgroundColor=Colors.color('blue'),
             foregroundColor=Colors.color('white'),
-            padding=EdgeInsets.all(10),
-            textStyle=TextStyle(fontSize=18)
+            padding=EdgeInsets.symmetric(horizontal=12, vertical=10),
+            textStyle=TextStyle(fontSize=18),
+            side=BorderSide(style=BorderStyle.HIDDEN, color=Colors.color('red'), borderRadius=10)
         )
 
         button_style_decrement = ButtonStyle(
             backgroundColor=Colors.color('red'),
             foregroundColor=Colors.color('white'),
-            padding=EdgeInsets.all(10),
-            textStyle=TextStyle(fontSize=18)
+            padding=EdgeInsets.symmetric(horizontal=12, vertical=10),
+            textStyle=TextStyle(fontSize=18),
+            side=BorderSide(style=BorderStyle.HIDDEN, color=Colors.color('red'), borderRadius=10)
         )
 
         increment_button = IconButton(
@@ -51,7 +55,7 @@ class GridApp:
         )
 
         items = [
-            Text(data=f'Item {i}', style=TextStyle(fontSize=16, color=Colors.color('black'))) for i in range(20)
+            Text(data=f'Item {i + 1}', style=TextStyle(fontSize=16, color=Colors.color('black'))) for i in range(self.count if self.count != 0 else 20)
         ]
 
         grid_view = GridView(
@@ -66,11 +70,20 @@ class GridApp:
             physics=ScrollPhysics.BOUNCING
         )
 
+        row = Row(
+            children=[
+                increment_button,
+                decrement_button
+            ],
+            mainAxisSize= mainAxisSize.MAX,
+            mainAxisAlignment=MainAxisAlignment.SPACE_EVENLY,
+            crossAxisAlignment=CrossAxisAlignment.CENTER,
+        )
+
         column = Column(
             children=[
                 counter_text,
-                increment_button,
-                decrement_button,
+                row,
                 grid_view
             ],
             mainAxisAlignment=MainAxisAlignment.START,
@@ -88,25 +101,41 @@ class GridApp:
             margin=EdgeInsets.all(10)
         )
 
+        floating_button = FloatingActionButton(
+            child=Icon(icon_name="plus"),
+            onPressed="increment_count"
+        )
+
         body = Body(
-            child= Container,
+            child= container,
         )
 
         title = Text(
             data=f'Grid App',
             style=TextStyle(fontSize=20, color=Colors.color('white')),
-            textAlign='center'
+            textAlign=TextAlign.left()
         )
 
         appBar = AppBar(
             title=title,
-            backgroundColor='blue',
-            elevation=5,
+            pinned=True,
+            backgroundColor=Colors.color('blue'),
+            elevation=20,
+            titleSpacing=15,
+            shadowColor=Colors.rgba(100, 100, 111, 0.2),#0px 7px 29px 0px;
+            leading= Image(
+                AssetImage('soldiers.jpg'),
+                height=20,
+                width=20,
+                fit= ImageFit.COVER,  
+            )
         )
 
         scaffold = Scaffold(
             appBar= appBar,
-            body=container
+            body= body,
+            floatingActionButton= floating_button,
+            extendBodyBehindAppBar= True
         )
 
         self.framework.set_root(scaffold)
