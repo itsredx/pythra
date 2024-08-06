@@ -27,15 +27,14 @@ function handleClickOnTap(callback_name, index) {
 
 
 function openDrawer() {
-    var drawer = document.getElementById("drawer");
-    var scrim = document.getElementById("drawer-scrim");
-    drawer.style.left = "0";
-    scrim.style.display = "block";
+    var drawer = document.getElementById('drawer');
+    drawer.classList.remove('drawer-closed');
+    drawer.classList.add('drawer-open');
 }
 
 function closeDrawer() {
-    var drawer = document.getElementById("drawer");
-    var scrim = document.getElementById("drawer-scrim");
-    drawer.style.left = "-250px";
-    scrim.style.display = "none";
+    var drawer = document.getElementById('drawer');
+    drawer.classList.remove('drawer-open');
+    drawer.classList.add('drawer-closed');
 }
+

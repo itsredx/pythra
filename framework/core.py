@@ -4,7 +4,7 @@ import os
 import inspect
 import sys
 import webview
-from .widgets import Container, Column, IconButton, Icon, Text
+from .widgets import Container, Column, IconButton, Icon, Text, Scaffold
 from .api import Api
 from .config import Config
 from .server import AssetServer
@@ -16,13 +16,17 @@ class Framework:
         self.api = Api()
         self.root_widget = None
         self.window = None
+        self.drawer = None
         self.asset_server = AssetServer(directory='assets', port=8000)
         self.asset_server.start()
 
     def set_root(self, widget):
         self.root_widget = widget
-        self.collect_callbacks(widget)
-        
+        if isinstance(widget, Scaffold):
+            self.drawer = widget.drawer
+
+
+        self.collect_callbacks(widget)       
         if self.window:
             self.update_content()
 
@@ -42,7 +46,7 @@ class Framework:
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
                 <script src="main.js"></script>
             </head>
-            <body style="margin: 0px; padding: 0px;">
+            <body style="margin: 0px; padding: 0px; display: flex; height: 100vh;">
                 {html_content}
             </body>
             </html>
@@ -58,6 +62,21 @@ class Framework:
         if hasattr(widget, 'children'):
             for child in widget.children:
                 self.collect_callbacks(child)
+
+    def toggle_drawer(self):
+        if self.drawer:
+            is_open = self.drawer.toggle()
+            drawer_transform = 'translateX(0)' if is_open else 'translateX(-100%)'
+            body_width = 'calc(100% - 250px)' if is_open else '100%'
+            margin_left = '' if is_open else '-250px'
+            script_1 = f'document.getElementById("drawer").style.transform = "{drawer_transform}";'
+            script_2 = f'document.getElementById("body").style.width = "{body_width}";'
+            script_3 = f'document.getElementById("body").style.marginLeft = "{margin_left}"'
+            self.window.evaluate_js(script_1 + script_2 + script_3)
+            #script1_2 = f'document.getElementById("body").style.paddingLeft = "{scaffold_position}";'
+            #script1_2 = f'document.getElementById("body").style.paddingLeft = "{scaffold_position}";'
+            
+            
 
     def update_content(self):
         if self.window:

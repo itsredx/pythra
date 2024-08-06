@@ -29,6 +29,12 @@ class MyApp:
                 decoration=BoxDecoration(
                     color=Colors.color('lightblue'),
                     borderRadius=25,
+                    boxShadow=BoxShadow(
+                        color=Colors.rgba(0, 0, 0, 0.5),
+                        offset=Offset(1, 3),
+                        blurRadius=6,
+                        spreadRadius=2
+                    )
                 )
                 ),
             Container(
@@ -39,6 +45,12 @@ class MyApp:
                 decoration=BoxDecoration(
                     color=Colors.color('lightblue'),
                     borderRadius=25,
+                    boxShadow=BoxShadow(
+                        color=Colors.rgba(0, 0, 0, 0.5),
+                        offset=Offset(2, 3),
+                        blurRadius=7,
+                        spreadRadius=2
+                    )
                 )
                 )
         ]
@@ -53,7 +65,7 @@ class MyApp:
         scaffold = Scaffold(
             appBar= AppBar(
                 title=Text('Bottom Navigation Example'),
-                elevation=2,
+                elevation=6,
                 shadowColor=Colors.rgba(0,0,0,0.2), 
                 leading=IconButton(
                     child=Icon('bars'),

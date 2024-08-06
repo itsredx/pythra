@@ -408,7 +408,7 @@ class AppBar(Widget):
             app_bar_style += f"box-shadow: 0 {self.elevation}px 5px {self.shadowColor};"
         
         # Define height and ensure it affects layout
-        app_bar_style += f"height: 56px; display: flex; {pinned_style} z-index: 1; align-items: center;"
+        app_bar_style += f"box-shadow: 0 6px 5px rgba(0, 0, 0, 0.2); height: 56px; display: flex; align-items: center; position: relative; z-index: 1;"
 
         leading_html = self.leading.to_html() if self.leading else ""
         title_html = self.title.to_html() if self.title else ""
@@ -477,8 +477,7 @@ class BottomNavigationBar(Widget):
             items_html += f"<div onclick='handleClickOnTap(\"{self.onTap}\", {index})' style='{item_style}'>{item_html}</div>"
 
         return f"""
-        <div style='position: fixed; bottom: 0px; width: 100%; height: 60px; background-color: {self.backgroundColor}; 
-                     box-shadow: 0 -2px {self.elevation}px rgba(0,0,0,0.2); display: flex; justify-content: center; align-items: center;'>
+        <div id="bottomNav" style='height: 60px; background-color: {self.backgroundColor}; box-shadow: 0 -2px 10px rgba(0,0,0,0.2); display: flex; justify-content: center; align-items: center;  position: relative; z-index: 1;'>
             {items_html}
         </div>
         """
@@ -500,7 +499,7 @@ class BottomNavigationBarItem:
         label_color = fixedColor if should_color_label else '#aaa'
         label_html = f"<div style='color: {label_color};'>{self.label}</div>" if should_show_label else ''
 
-        return f"<div style='text-align: center;'>{icon_html}{label_html}</div>"
+        return f"<div style='text-align: center; '>{icon_html}{label_html}</div>"
 
 class Scaffold(Widget):
     def __init__(self, 
@@ -564,11 +563,13 @@ class Scaffold(Widget):
         body_margin_top = "margin-top: 0px;" if self.appBar and not self.extendBodyBehindAppBar else ""
 
         return f"""
-        <div style="position: relative; height: 100%; width: 100%; {background_color_style}">
-            {drawer_html}
+        <div id="scaffold" style="flex: 1; display: flex; flex-direction: column; height: 100vh; {background_color_style}">
             {appBar_html}
-            <div style="position: relative; z-index: 0; {extend_body_style} {body_margin_top}">
-                {body_html}
+            <div id="container" style="flex: 1; display: flex; overflow: hidden; position: relative; ">
+            {drawer_html}
+            <div id="body" style='flex: 1; overflow-y: auto; padding: 20px; margin-left: -250px; transition: margin-left 0.3s ease;'>
+            {body_html}
+            </div>
             </div>
             {floating_action_button_html}
             {bottom_sheet_html}
@@ -578,20 +579,7 @@ class Scaffold(Widget):
             {bottom_navigation_bar_html}
             {end_drawer_html}
         </div>
-        <style>
-            .drawer-closed {{
-                transform: translateX(-100%);
-            }}
-            .drawer-open {{
-                transform: translateX(0);
-            }}
-            .scrim-hidden {{
-                display: none;
-            }}
-            .scrim-visible {{
-                display: block;
-            }}
-        </style>
+        
         """
 
 class Body(Widget):
@@ -601,23 +589,27 @@ class Body(Widget):
     def to_html(self):
         child_html = self.child.to_html() if self.child else ''
         
-        return f"<div style='flex: 1;'>{child_html}</div>"
+        return f"{child_html}"
 
         
 
 class Drawer(Widget):
-    def __init__(self, children, key=None):
-        self.children = children
-        self.key = key
+    def __init__(self, child):
+        self.child = child
+        self.is_open = False
 
-    def to_html(self, drawer_open=False):
-        children_html = ''.join([child.to_html() for child in self.children])
-        drawer_class = "drawer-open" if drawer_open else "drawer-closed"
+    def to_html(self):
         return f"""
-        <div id="drawer" class="{drawer_class}" style="position: fixed; top: 0; left: 0; width: 250px; height: 100%; background-color: #ffffff; box-shadow: 2px 0 5px rgba(0,0,0,0.5); transition: transform 0.3s ease;">
-            {children_html}
+        <div id="drawer" style="width: 250px; height: 100%; background: white; overflow-y: auto; box-shadow: 2px 0px 5px rgba(0,0,0,0.5); transform: translateX(-100%); transition: transform 0.3s ease;">
+            {self.child.to_html()}
         </div>
         """
+
+    def toggle(self):
+        self.is_open = not self.is_open
+        return self.is_open
+
+
 
 class ListTile(Widget):
     def __init__(self, leading=None, title=None, subtitle=None, onTap=None):
