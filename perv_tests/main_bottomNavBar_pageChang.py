@@ -21,35 +21,12 @@ class MyApp:
         content = [
             Container(
                 child=Text('Welcome to the Home Page!'),
-                padding=EdgeInsets.all(20),
-                margin=EdgeInsets.all(20),
-                constraints= BoxConstraints(max_width= 300, max_height=300),
-                decoration=BoxDecoration(
-                    color=Colors.color('lightblue'),
-                    borderRadius=25,
-                    boxShadow=BoxShadow(
-                        color=Colors.rgba(0, 0, 0, 0.5),
-                        offset=Offset(1, 3),
-                        blurRadius=6,
-                        spreadRadius=2
-                    )
-                )
+                padding=EdgeInsets.all(20)
                 ),
             Container(
                 child=Text('Settings Page'),
                 padding=EdgeInsets.all(20),
-                margin=EdgeInsets.all(20),
-                constraints= BoxConstraints(max_width= 300, max_height=300),
-                decoration=BoxDecoration(
-                    color=Colors.color('lightblue'),
-                    borderRadius=25,
-                    boxShadow=BoxShadow(
-                        color=Colors.rgba(0, 0, 0, 0.5),
-                        offset=Offset(2, 3),
-                        blurRadius=7,
-                        spreadRadius=2
-                    )
-                )
+                margin=EdgeInsets.all(20)
                 )
         ]
 

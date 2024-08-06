@@ -1,7 +1,7 @@
 import yaml
 import os
 from .base import Widget
-from framework.styles import EdgeInsets, Alignment, BoxConstraints, Colors, BoxDecoration, ClipBehavior, MainAxisAlignment, CrossAxisAlignment, TextStyle, ButtonStyle, Axis, ScrollPhysics, Overflow, StackFit, TextDirection, TextAlign, ImageFit, ShadowColor, TextBaseline,mainAxisSize, VerticalDirection
+from framework.styles import EdgeInsets, Alignment, BoxConstraints, Colors, BoxDecoration, ClipBehavior, MainAxisAlignment, CrossAxisAlignment, TextStyle, ButtonStyle, Axis, ScrollPhysics, Overflow, StackFit, TextDirection, TextAlign, ImageFit, TextBaseline, MainAxisSize, VerticalDirection
 from framework.config import Config
 
 config = Config()
@@ -31,8 +31,8 @@ class Container(Widget):
         self.clipBehavior = clipBehavior
 
     def to_html(self):
-        padding_str = self.padding.to_css() if self.padding else ''
-        margin_str = self.margin.to_css() if self.margin else ''
+        padding_str = f'padding: {self.padding.to_css()};' if self.padding else ''
+        margin_str = f'margin: {self.margin.to_css()};' if self.margin else ''
         width_str = f'width: {self.width}px;' if self.width else ''
         height_str = f'height: {self.height}px;' if self.height else ''
         color_str = f'background-color: {self.color};' if self.color else ''
@@ -44,7 +44,7 @@ class Container(Widget):
         child_html = self.child.to_html() if self.child else ''
 
         return f"""
-        <div style='position: relative; {alignment_str} {padding_str} {margin_str} {width_str} {height_str} {color_str} {decoration_str} {clip_str}'>
+        <div style='position: relative; {self.constraints.to_css()} {alignment_str} {padding_str} {margin_str} {width_str} {height_str} {color_str} {decoration_str} {clip_str}'>
             {child_html}
             <div style='{foregroundDecoration_str} position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;'></div>
         </div>
@@ -220,7 +220,7 @@ class NetworkImage:
 
 
 class Icon(Widget):
-    def __init__(self, icon_name=None, custom_icon=None, size=24, color='black'):
+    def __init__(self, icon_name=None, custom_icon=None, size=24, color=None):
         self.icon_name = icon_name
         self.custom_icon = custom_icon
         self.size = size
@@ -232,7 +232,8 @@ class Icon(Widget):
             return f"<img src='{src}' style='width: {self.size}px; height: {self.size}px; color: {self.color};' />"
         else:
             # Use a CDN for predefined icons, e.g., FontAwesome
-            return f"<i class='fa fa-{self.icon_name}' style='font-size: {self.size}px; color: {self.color};'></i>"
+            color = f"color: {self.color};" if self.color != None else ''
+            return f"<i class='fa fa-{self.icon_name}' style='font-size: {self.size}px; {color}'></i>"
 
 
 
@@ -430,6 +431,76 @@ class AppBar(Widget):
         </header>
         """
 
+
+class BottomNavigationBar(Widget):
+    def __init__(self, 
+                 items, 
+                 onTap=None, 
+                 currentIndex=0, 
+                 fixedColor=None, 
+                 backgroundColor="white", 
+                 elevation=10, 
+                 iconSize=30, 
+                 selectedFontSize=18, 
+                 unselectedFontSize=14, 
+                 selectedItemColor="blue", 
+                 unselectedItemColor="grey", 
+                 showSelectedLabels=True, 
+                 showUnselectedLabels=False, 
+                 landscapeLayout="centered"):
+        self.items = items
+        self.onTap = onTap
+        self.currentIndex = currentIndex
+        self.fixedColor = fixedColor
+        self.backgroundColor = backgroundColor
+        self.elevation = elevation
+        self.iconSize = iconSize
+        self.selectedFontSize = selectedFontSize
+        self.unselectedFontSize = unselectedFontSize
+        self.selectedItemColor = selectedItemColor
+        self.unselectedItemColor = unselectedItemColor
+        self.showSelectedLabels = showSelectedLabels
+        self.showUnselectedLabels = showUnselectedLabels
+        self.landscapeLayout = landscapeLayout
+
+    def to_html(self):
+        items_html = ''
+        for index, item in enumerate(self.items):
+            selected = index == self.currentIndex
+            color = self.selectedItemColor if selected else self.unselectedItemColor
+            font_size = self.selectedFontSize if selected else self.unselectedFontSize
+
+            item.icon.size = self.iconSize
+
+            item_html = item.to_html(selected=selected, showSelectedLabels = self.showSelectedLabels, showUnselectedLabels= self.showUnselectedLabels, fixedColor=self.fixedColor)
+            item_style = f"color: {color}; font-size: {font_size}px; cursor: pointer; flex: 1;"
+            items_html += f"<div onclick='handleClickOnTap(\"{self.onTap}\", {index})' style='{item_style}'>{item_html}</div>"
+
+        return f"""
+        <div style='position: fixed; bottom: 0px; width: 100%; height: 60px; background-color: {self.backgroundColor}; 
+                     box-shadow: 0 -2px {self.elevation}px rgba(0,0,0,0.2); display: flex; justify-content: center; align-items: center;'>
+            {items_html}
+        </div>
+        """
+
+
+class BottomNavigationBarItem:
+    def __init__(self, icon, label):
+        self.icon = icon
+        self.label = label
+
+    def to_html(self, selected=False, showSelectedLabels=True, showUnselectedLabels=False, iconSize=30, fixedColor=None):
+        # Set the color to fixedColor if provided, otherwise use default behavior
+        color = fixedColor if fixedColor else None
+        self.icon.color = color
+        
+        icon_html = self.icon.to_html()
+        should_show_label = (selected and showSelectedLabels) or (not selected and showUnselectedLabels)
+        should_color_label = (fixedColor and selected) or (not fixedColor and selected)
+        label_color = fixedColor if should_color_label else '#aaa'
+        label_html = f"<div style='color: {label_color};'>{self.label}</div>" if should_show_label else ''
+
+        return f"<div style='text-align: center;'>{icon_html}{label_html}</div>"
 
 class Scaffold(Widget):
     def __init__(self, 

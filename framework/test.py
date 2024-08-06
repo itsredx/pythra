@@ -1,29 +1,19 @@
-class BorderSide:
-    def __init__(self, width=None, style=None, color=None, borderRadius=None):
-        self.width = width
-        self.style = style
+class BoxShadow:
+    def __init__(self, color, offset, blurRadius, spreadRadius):
         self.color = color
-        self.borderRadius = borderRadius
+        self.offset = offset
+        self.blurRadius =blurRadius
+        self.spreadRadius =spreadRadius
 
     def to_css(self):
-        
-        width = f"border-width: {self.width}px;" if self.width else ''
-        style = f"border-style: {self.style};" if self.style else ''
-        color = f"border-color: {self.color};" if self.color else ''
-        radius = f"border-radius: {self.borderRadius}px;" if self.borderRadius else ''
-        return f"{width} {style} {color} {radius}"
+        return f'{self.offset} {self.blurRadius} {self.spreadRadius} {self.color}'
 
-class borderStyle:
-    NONE = 'none'
-    DOTTED = 'dotted'
-    DASHED = 'dashed'
-    SOLID = 'solid'
-    DOUBLE ='double'
-    GROOVE = 'groove'
-    RIDGE = 'ridge'
-    INSET = 'inset'
-    OUTSET = 'outset'
-    HIDDEN = 'hidden'
+def Offset(x, y):
+    offset_x = x
+    offset_y = y
 
+    return f'{offset_x} {offset_y}'
+    		
+    		
 
-print(BorderSide(30, borderStyle.DOUBLE, 'red', 10).to_css())
+print(BoxShadow(color='blue', offset=Offset(0,1), blurRadius=10, spreadRadius=10).to_css())

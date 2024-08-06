@@ -12,6 +12,20 @@ function handleClick(callback_name) {
     }
 }
 
+
+function handleClickOnTap(callback_name, index) {
+    if (window.pywebview) {
+        window.pywebview.api.on_pressed(callback_name, index).then(function(response) {
+            console.log(response);
+        }).catch(function(error) {
+            console.error(error);
+        });
+    } else {
+        console.error('pywebview is not defined');
+    }
+}
+
+
 function openDrawer() {
     var drawer = document.getElementById("drawer");
     var scrim = document.getElementById("drawer-scrim");

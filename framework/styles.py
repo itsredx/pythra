@@ -117,9 +117,25 @@ class Colors:
     def rgba(red, blue, green, alpha):
         return f"rgba({red}, {blue}, {green}, {alpha})"
 
-class ShadowColor:
-    def rgba(red, blue, green, alpha):
-        return f"rgba({red}, {blue}, {green}, {alpha})"
+    
+
+class BoxShadow:
+    def __init__(self, color, offset, blurRadius, spreadRadius):
+        self.color = color
+        self.offset = offset
+        self.blurRadius =blurRadius
+        self.spreadRadius =spreadRadius
+
+    def to_css(self):
+        return f'{self.offset} {self.blurRadius}px {self.spreadRadius}px {self.color}'
+
+
+def Offset(x, y):
+    offset_x = x
+    offset_y = y
+
+    return f'{offset_x}px {offset_y}px'
+
 
 class BoxDecoration:
     def __init__(self, color=None, border=None, borderRadius=None, boxShadow=None, transform=None):
@@ -139,9 +155,9 @@ class BoxDecoration:
         if self.border:
             styles.append(f"border: {self.border};")
         if self.borderRadius:
-            styles.append(f"border-radius: {self.borderRadius};")
+            styles.append(f"border-radius: {self.borderRadius}px;")
         if self.boxShadow:
-            styles.append(f"box-shadow: {self.boxShadow};")
+            styles.append(f"box-shadow: {self.boxShadow.to_css()};")
         if self.transform:
             styles.append(f"transform: {self.transform};")
         return ' '.join(styles)
@@ -159,7 +175,7 @@ class ImageFit():
     NONE = 'none'
     SCALE_DOWN = 'scale-down'
 
-class mainAxisSize:
+class MainAxisSize:
     MIN = 'min'
     MAX = 'max'
 
