@@ -24,8 +24,10 @@ class Framework:
         self.root_widget = widget
         if isinstance(widget, Scaffold):
             self.drawer = widget.drawer
+            self.end_drawer = widget.endDrawer
+            self.body = widget.body
 
-
+        
         self.collect_callbacks(widget)       
         if self.window:
             self.update_content()
@@ -54,8 +56,10 @@ class Framework:
 
         self.window = webview.create_window(title, html_file, js_api=self.api)
         webview.start(debug=True)
+        
 
     def collect_callbacks(self, widget):
+        
         if hasattr(widget, 'onPressed') and widget.onPressed:
             self.api.register_callback(widget.onPressed, getattr(self, widget.onPressed))
         
@@ -63,20 +67,50 @@ class Framework:
             for child in widget.children:
                 self.collect_callbacks(child)
 
+    
+    def body_margin(self):
+        if self.body:
+            script_2 = f'document.getElementById("body").style.marginLeft = "-250px";'
+            script_1 = f'document.getElementById("body").style.marginRight = "-250px";'
+            self.window.evaluate_js(script_1, script_2)
+    
+
     def toggle_drawer(self):
         if self.drawer:
             is_open = self.drawer.toggle()
-            drawer_transform = 'translateX(0)' if is_open else 'translateX(-100%)'
-            body_width = 'calc(100% - 250px)' if is_open else '100%'
-            margin_left = '' if is_open else '-250px'
+            drawer_width = self.drawer.width + self.drawer.padding.to_int_horizontal() + self.drawer.borderRight.to_int()
+            drawer_transform = 'translateX(0)' if is_open else f'translateX(-{drawer_width}px)'
+            body_width = f'calc(100% - {drawer_width}px)' if is_open else '100%'
+            margin_left = '' if is_open else f'-{drawer_width}px' 
+            end_drawer_width = self.end_drawer.width + self.end_drawer.padding.to_int_horizontal() + self.end_drawer.borderLeft.to_int()
+            margin_right = '0px' if self.end_drawer.is_open else f'-{end_drawer_width}px'            
             script_1 = f'document.getElementById("drawer").style.transform = "{drawer_transform}";'
             script_2 = f'document.getElementById("body").style.width = "{body_width}";'
-            script_3 = f'document.getElementById("body").style.marginLeft = "{margin_left}"'
-            self.window.evaluate_js(script_1 + script_2 + script_3)
-            #script1_2 = f'document.getElementById("body").style.paddingLeft = "{scaffold_position}";'
+            script_3 = f'document.getElementById("body").style.marginLeft = "{margin_left}";'
+            script1_4 = f'document.getElementById("body").style.marginRight = "{margin_right}";'
+            self.window.evaluate_js(script_1 + script_2 + script_3 + script1_4)
+            
             #script1_2 = f'document.getElementById("body").style.paddingLeft = "{scaffold_position}";'
             
+    def toggle_end_drawer(self):
+        if self.end_drawer:
+            is_open = self.end_drawer.toggle()
+            end_drawer_width = self.end_drawer.width + self.end_drawer.padding.to_int_horizontal() + self.end_drawer.borderLeft.to_int()
+            drawer_transform = 'translateX(0)' if is_open else f'translateX({end_drawer_width}px)'
+            body_width = f'calc(100% - {end_drawer_width}px)' if is_open else '100%'
+            margin_left = f'-{end_drawer_width}px' if is_open else f'-{end_drawer_width}px'
+            if self.drawer.is_open:
+                margin_left = '0px'
+            else:
+                drawer_width = self.drawer.width + self.drawer.padding.to_int_horizontal() + self.drawer.borderRight.to_int()
+                margin_left = f'-{drawer_width}px'
+            margin_right = '0px' if is_open else f'-{end_drawer_width}px'
+            script_1 = f'document.getElementById("endDrawer").style.transform = "{drawer_transform}";'
+            script_2 = f'document.getElementById("body").style.width = "{body_width}";'
+            script_3 = f'document.getElementById("body").style.marginRight = "{margin_right}";'
+            script_4 = f'document.getElementById("body").style.marginLeft = "{margin_left}"'
             
+            self.window.evaluate_js(script_1 + script_2 + script_3 + script_4)
 
     def update_content(self):
         if self.window:

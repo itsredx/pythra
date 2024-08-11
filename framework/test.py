@@ -1,27 +1,19 @@
-class Drawer(Widget):
-    def __init__(self, children, key=None):
-        self.children = children
-        self.key = key
+class BorderSide:
+    def __init__(self, width=0, style=None, color=None, borderRadius=0):
+        self.width = width
+        self.style = style
+        self.color = color
+        self.borderRadius = borderRadius
 
-    def to_html(self, drawer_open=False):
-        children_html = ''.join([child.to_html() for child in self.children])
-        drawer_class = "drawer-open" if drawer_open else "drawer-closed"
-        return f"""
-        <div id="drawer" class="{drawer_class}" style="position: fixed; top: 0; left: 0; width: 250px; height: 100%; background-color: #ffffff; box-shadow: 2px 0 5px rgba(0,0,0,0.5); transition: transform 0.3s ease;">
-            {children_html}
-        </div>
-        <style>
-            .drawer-closed {{
-                transform: translateX(-100%);
-            }}
-            .drawer-open {{
-                transform: translateX(0);
-            }}
-            .scrim-hidden {{
-                display: none;
-            }}
-            .scrim-visible {{
-                display: block;
-            }}
-        </style>
-        """
+    def to_css(self):
+        
+        width = f"border-width: {self.width}px;" if self.width else ''
+        style = f"border-style: {self.style};" if self.style else ''
+        color = f"border-color: {self.color};" if self.color else ''
+        radius = f"border-radius: {self.borderRadius}px;" if self.borderRadius else ''
+        return f"{width} {style} {color} {radius}"
+
+    def to_int(self):
+        return self.width
+
+print(BorderSide(width=200).to_int())

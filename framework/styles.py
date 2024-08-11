@@ -19,6 +19,14 @@ class EdgeInsets:
 
     def to_css(self):
         return f"{self.top}px {self.right}px {self.bottom}px {self.left}px"
+    
+    def to_int_vertical(self):
+        return self.top + self.bottom
+
+    def to_int_horizontal(self):
+        return self.right + self.left
+    
+
 
 class Alignment:
     def __init__(self, justify_content, align_items):
@@ -254,6 +262,16 @@ class BorderSide:
         color = f"border-color: {self.color};" if self.color else ''
         radius = f"border-radius: {self.borderRadius}px;" if self.borderRadius else ''
         return f"{width} {style} {color} {radius}"
+
+    def border_to_css(self):
+        width = f"{self.width}px" if self.width else ''
+        style = self.style if self.style else ''
+        color = self.color if self.color else ''
+        radius = f"{self.borderRadius}px" if self.borderRadius else ''
+        return f"{style} {width} {color} {radius}"
+
+    def to_int(self):
+        return self.width + self.width
 
 class ButtonStyle:
     def __init__(self, backgroundColor=None, foregroundColor=None, overlayColor=None, shadowColor=None,

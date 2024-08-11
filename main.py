@@ -18,6 +18,9 @@ class MyApp:
     def toggle_drawer(self):
         self.framework.toggle_drawer()
 
+    def toggle_end_drawer(self):
+        self.framework.toggle_end_drawer()
+
     def update_ui(self):
         # Define the content for each tab
         content = [
@@ -47,7 +50,19 @@ class MyApp:
         body_content = content[self.currentIndex]
 
         drawer = Drawer(
-            child=Text('hello')
+            child=Text('Hello'),
+            width=300,
+            divider=Divider(
+                margin=EdgeInsets.symmetric(8,0)
+            ),
+        )
+
+        end_drawer = EndDrawer(
+            child=Text('Hello End'),
+            width=250,
+            divider=Divider(
+                margin=EdgeInsets.symmetric(8,0)
+            ),
         )
 
         scaffold = Scaffold(
@@ -57,10 +72,17 @@ class MyApp:
                 shadowColor=Colors.rgba(0,0,0,0.2), 
                 leading=IconButton(
                     child=Icon('bars'),
-                    onPressed='toggle_drawer')
+                    onPressed='toggle_drawer'),
+                actions=[
+                IconButton(
+                    child=Icon('bars'),
+                    onPressed='toggle_end_drawer'),
+            ],
             ) if self.currentIndex == 0 else None,
+            
             body=body_content,  # Use the selected content
             drawer= drawer,
+            endDrawer= end_drawer,
             bottomNavigationBar=BottomNavigationBar(
                 items=[
                     BottomNavigationBarItem(icon=Icon('home'), label='Home'),
@@ -86,6 +108,7 @@ class MyApp:
     def run(self):
         self.framework.api.register_callback('on_tab_selected', self.on_tab_selected)
         self.framework.api.register_callback('toggle_drawer', self.toggle_drawer)
+        self.framework.api.register_callback('toggle_end_drawer', self.toggle_end_drawer)
         self.update_ui()
         self.framework.run(title='MyApp')
 

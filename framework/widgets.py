@@ -1,7 +1,7 @@
 import yaml
 import os
 from .base import Widget
-from framework.styles import EdgeInsets, Alignment, BoxConstraints, Colors, BoxDecoration, ClipBehavior, MainAxisAlignment, CrossAxisAlignment, TextStyle, ButtonStyle, Axis, ScrollPhysics, Overflow, StackFit, TextDirection, TextAlign, ImageFit, TextBaseline, MainAxisSize, VerticalDirection
+from framework.styles import *
 from framework.config import Config
 
 config = Config()
@@ -438,13 +438,13 @@ class BottomNavigationBar(Widget):
                  onTap=None, 
                  currentIndex=0, 
                  fixedColor=None, 
-                 backgroundColor="white", 
+                 backgroundColor= Colors.color("white"), 
                  elevation=10, 
                  iconSize=30, 
                  selectedFontSize=18, 
                  unselectedFontSize=14, 
-                 selectedItemColor="blue", 
-                 unselectedItemColor="grey", 
+                 selectedItemColor= Colors.color("blue"), 
+                 unselectedItemColor=Colors.color("grey"), 
                  showSelectedLabels=True, 
                  showUnselectedLabels=False, 
                  landscapeLayout="centered"):
@@ -511,7 +511,7 @@ class Scaffold(Widget):
                  endDrawer=None, 
                  bottomSheet=None, 
                  persistentFooterButtons=None,
-                 backgroundColor='white',
+                 backgroundColor=Colors.color('white'),
                  resizeToAvoidBottomInset=True,
                  extendBody=False,
                  extendBodyBehindAppBar=False,
@@ -519,7 +519,7 @@ class Scaffold(Widget):
                  drawerEdgeDragWidth=None,
                  drawerEnableOpenDragGesture=True,
                  endDrawerEnableOpenDragGesture=True,
-                 drawerScrimColor='rgba(0, 0, 0, 0.5)',
+                 drawerScrimColor=Colors.rgba(0, 0, 0, 0.5),
                  onDrawerChanged=None,
                  onEndDrawerChanged=None,
                  persistentFooterAlignment=MainAxisAlignment.CENTER,
@@ -562,14 +562,33 @@ class Scaffold(Widget):
         extend_body_style = "position: absolute; top: 56; bottom: 0; left: 0; right: 0;" if self.extendBody or self.extendBodyBehindAppBar else ""
         body_margin_top = "margin-top: 0px;" if self.appBar and not self.extendBodyBehindAppBar else ""
 
+        
+        if body_html != '':
+            if drawer_html != '':
+                drawer_width = self.drawer.width + self.drawer.padding.to_int_horizontal() + self.drawer.borderRight.to_int()
+                
+                margin_left = f'-{drawer_width}px'
+                
+            else:
+                margin_left = '0px'
+
+            if end_drawer_html != '':
+                end_drawer_width = self.endDrawer.width + self.endDrawer.padding.to_int_horizontal() + self.endDrawer.borderLeft.to_int()
+                margin_right = f'-{end_drawer_width}px'
+        
+            else:
+                margin_right = '0px'
+
+
         return f"""
         <div id="scaffold" style="flex: 1; display: flex; flex-direction: column; height: 100vh; {background_color_style}">
             {appBar_html}
             <div id="container" style="flex: 1; display: flex; overflow: hidden; position: relative; ">
             {drawer_html}
-            <div id="body" style='flex: 1; overflow-y: auto; padding: 20px; margin-left: -250px; transition: margin-left 0.3s ease;'>
+            <div id="body" style='flex: 1; overflow-y: auto; padding: 20px; margin-left: {margin_left}; margin-right: {margin_right}; transition: margin-left 0.3s ease;'>
             {body_html}
             </div>
+            {end_drawer_html}
             </div>
             {floating_action_button_html}
             {bottom_sheet_html}
@@ -577,7 +596,6 @@ class Scaffold(Widget):
                 {footer_buttons_html}
             </div>
             {bottom_navigation_bar_html}
-            {end_drawer_html}
         </div>
         
         """
@@ -591,17 +609,65 @@ class Body(Widget):
         
         return f"{child_html}"
 
-        
+
+
+class Divider(Widget):
+    def __init__(self, height=1, margin=EdgeInsets.symmetric(8,0), color=Colors.hex('#ccc'), border=BorderStyle.NONE):
+        self.height = height
+        self.margin = margin
+        self.color = color
+        self.border = border
+    def to_html(self):
+        return f"""
+        <hr style="height: {self.height}px; background-color: {self.color}; border: {self.border}; margin: {self.margin.to_css()};">
+        """
 
 class Drawer(Widget):
-    def __init__(self, child):
+    def __init__(self, child, width=250, divider=None, borderRight= BorderSide(width=0.1, style=BorderStyle.SOLID), elevation='', padding=EdgeInsets.all(20), backgroundColor=Colors.color('white')):
         self.child = child
+        self.width = width
+        self.padding = padding
+        self.borderRight = borderRight
+        self.elevation = elevation
+        self.divider = divider
+        self.backgroundColor = backgroundColor
         self.is_open = False
 
     def to_html(self):
+        divider = self.divider.to_html() if self.divider else ''
+        drawer_width = self.width + self.padding.to_int_horizontal() + self.borderRight.to_int()
+        border = self.borderRight.border_to_css() if self.borderRight else ''
+
         return f"""
-        <div id="drawer" style="width: 250px; height: 100%; background: white; overflow-y: auto; box-shadow: 2px 0px 5px rgba(0,0,0,0.5); transform: translateX(-100%); transition: transform 0.3s ease;">
-            {self.child.to_html()}
+        <div id="drawer" style="width: {self.width}px; padding: {self.padding.to_css()}; height: 100%; background: {self.backgroundColor}; box-shadow:{self.elevation}; overflow-y: auto; border-right: {border}; transform: translateX(-{drawer_width}px); transition: transform 0.3s ease;">
+            {self.child.to_html()}{divider}
+        </div>
+        """
+
+    def toggle(self):
+        self.is_open = not self.is_open
+        return self.is_open
+
+
+
+class EndDrawer(Widget):
+    def __init__(self, child, width=250, divider=None, borderLeft= BorderSide(width=0.1, style=BorderStyle.SOLID), elevation='', padding=EdgeInsets.all(20), backgroundColor=Colors.color('white')):
+        self.child = child
+        self.width = width
+        self.padding = padding
+        self.borderLeft = borderLeft
+        self.elevation = elevation
+        self.divider = divider
+        self.backgroundColor = backgroundColor
+        self.is_open = False
+
+    def to_html(self):
+        divider = self.divider.to_html() if self.divider else ''
+        end_drawer_width = self.width + self.padding.to_int_horizontal() + self.borderLeft.to_int()
+        border = self.borderLeft.border_to_css() if self.borderLeft else ''
+        return f"""
+        <div id="endDrawer" style="width: {self.width}px; padding: {self.padding.to_css()}; height: 100%; background: {self.backgroundColor}; overflow-y: auto; box-shadow:{self.elevation}; border-left: {border}; transform: translateX({end_drawer_width}px); transition: transform 0.3s ease;">
+            {self.child.to_html()}{divider}
         </div>
         """
 
