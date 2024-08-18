@@ -44,7 +44,7 @@ class Container(Widget):
         child_html = self.child.to_html() if self.child else ''
 
         return f"""
-        <div style='position: relative; {self.constraints.to_css()} {alignment_str} {padding_str} {margin_str} {width_str} {height_str} {color_str} {decoration_str} {clip_str}'>
+        <div id="container" style='position: relative; {self.constraints.to_css()} {alignment_str} {padding_str} {margin_str} {width_str} {height_str} {color_str} {decoration_str} {clip_str}'>
             {child_html}
             <div style='{foregroundDecoration_str} position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;'></div>
         </div>
@@ -67,7 +67,7 @@ class Text(Widget):
         if self.overflow:
             style += f"overflow: {self.overflow};"
 
-        return f"<p style='{style}'>{self.data}</p>"
+        return f"<p id='text' style='{style}'>{self.data}</p>"
 
 
 
@@ -121,7 +121,7 @@ class FloatingActionButton(Widget):
     def to_html(self):
         onClick = f"onclick='handleClick(\"{self.onPressed}\")'" if self.onPressed else ""
         return f"""
-        <button style="position: fixed; bottom: 16px; right: 16px; border-radius: 50%; width: 56px; height: 56px; background-color: #f50057; color: white; border: none; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2);" {onClick}>
+        <button id='floatingButton' style="position: fixed; bottom: 16px; right: 16px; border-radius: 50%; width: 56px; height: 56px; background-color: #f50057; color: white; border: none; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2);" {onClick}>
             {self.child.to_html() if self.child else ''}
         </button>
         """
@@ -155,7 +155,7 @@ class Column(Widget):
         elif self.mainAxisSize == 'max':
             styles += "width: 100%;"
 
-        return f"<div style='{styles}'>{children_html}</div>"
+        return f"<div id='column' style='{styles}'>{children_html}</div>"
 
 
 
@@ -187,7 +187,7 @@ class Row(Widget):
         elif self.mainAxisSize == 'max':
             styles += "width: 100%;"
 
-        return f"<div style='{styles}'>{children_html}</div>"
+        return f"<div id='row' style='{styles}'>{children_html}</div>"
         
 
 class Image(Widget):
@@ -201,7 +201,7 @@ class Image(Widget):
     def to_html(self):
         src = self.image.get_source()
         style = f"object-fit: {self.fit}; width: {self.width}px; height: {self.height}px; display: flex; justify-content: center; align-items: center;"
-        return f"<img src='{src}' style='{style}' />"
+        return f"<img id='image' src='{src}' style='{style}' />"
 
 class AssetImage:
     def __init__(self, file_name):
@@ -233,7 +233,7 @@ class Icon(Widget):
         else:
             # Use a CDN for predefined icons, e.g., FontAwesome
             color = f"color: {self.color};" if self.color != None else ''
-            return f"<i class='fa fa-{self.icon_name}' style='font-size: {self.size}px; {color}'></i>"
+            return f"<i id='icon' class='fa fa-{self.icon_name}' style='font-size: {self.size}px; {color}'></i>"
 
 
 
@@ -270,7 +270,7 @@ class ListView(Widget):
         semantic_child_count_attr = f"aria-setsize='{self.semanticChildCount}'" if self.semanticChildCount else ""
 
         return f"""
-        <div style="display: flex; {scroll_direction_style} {reverse_style} {primary_style} {padding_style} {physics_style} {cache_extent_style}; height: 100%; width: 100%;" {semantic_child_count_attr}>
+        <div id="listView" style="display: flex; {scroll_direction_style} {reverse_style} {primary_style} {padding_style} {physics_style} {cache_extent_style}; height: 100%; width: 100%;" {semantic_child_count_attr}>
             {children_html}
         </div>
         """
@@ -307,7 +307,7 @@ class GridView(Widget):
         children_html = ''.join([f"<div style='flex: 1; aspect-ratio: {self.childAspectRatio};'>{child.to_html()}</div>" for child in self.children])
 
         return f"""
-        <div style="display: flex; {scroll_direction_style} {reverse_style} {primary_style} {padding_style} {physics_style}; height: 100%; width: 100%;">
+        <div id="gridView" style="display: flex; {scroll_direction_style} {reverse_style} {primary_style} {padding_style} {physics_style}; height: 100%; width: 100%;">
             <div style="display: grid; grid-template-columns: {grid_template_columns}; gap: {grid_gap}; width: 100%;">
                 {children_html}
             </div>
@@ -339,7 +339,7 @@ class Stack(Widget):
         children_html = ''.join([child.to_html() for child in self.children])
 
         return f"""
-        <div style="position: relative; {alignment_style} {text_direction_style} {fit_style} {clip_style} {overflow_style}">
+        <div id="stack" style="position: relative; {alignment_style} {text_direction_style} {fit_style} {clip_style} {overflow_style}">
             {children_html}
         </div>
         """
@@ -359,7 +359,7 @@ class Positioned(Widget):
         left_style = f"left: {self.left}px;" if self.left is not None else ""
 
         return f"""
-        <div style="position: absolute; {top_style} {right_style} {bottom_style} {left_style}">
+        <div id='positioned' style="position: absolute; {top_style} {right_style} {bottom_style} {left_style}">
             {self.child.to_html()}
         </div>
         """
@@ -372,7 +372,7 @@ class Expanded(Widget):
         self.key = key
 
     def to_html(self):
-        return f"<div style='flex: {self.flex};'>{self.child.to_html()}</div>"
+        return f"<div id='expanded' style='flex: {self.flex};'>{self.child.to_html()}</div>"
 
 
 
@@ -382,7 +382,7 @@ class Spacer(Widget):
         self.key = key
 
     def to_html(self):
-        return f"<div style='flex: {self.flex};'></div>"
+        return f"<div id='spacer' style='flex: {self.flex};'></div>"
         
         
 
@@ -422,7 +422,7 @@ class AppBar(Widget):
         title_spacing = self.titleSpacing if self.titleSpacing else 10
 
         return f"""
-        <header style="{app_bar_style}">
+        <header id="appBar" style="{app_bar_style}">
             <div style="{leading_css}">{leading_html}</div>
             <div style="flex: 1; margin-left: {title_spacing}px;">{title_html}</div>
             <div style="flex: 1; text-align: center;">{center_title}</div>
@@ -499,7 +499,7 @@ class BottomNavigationBarItem:
         label_color = fixedColor if should_color_label else '#aaa'
         label_html = f"<div style='color: {label_color};'>{self.label}</div>" if should_show_label else ''
 
-        return f"<div style='text-align: center; '>{icon_html}{label_html}</div>"
+        return f"<div id='bottomNavItem' style='text-align: center; '>{icon_html}{label_html}</div>"
 
 class Scaffold(Widget):
     def __init__(self, 
@@ -511,6 +511,7 @@ class Scaffold(Widget):
                  endDrawer=None, 
                  bottomSheet=None, 
                  persistentFooterButtons=None,
+                 snackBar=None,
                  backgroundColor=Colors.color('white'),
                  resizeToAvoidBottomInset=True,
                  extendBody=False,
@@ -533,6 +534,7 @@ class Scaffold(Widget):
         self.endDrawer = endDrawer
         self.bottomSheet = bottomSheet
         self.persistentFooterButtons = persistentFooterButtons
+        self.snackBar = snackBar
         self.backgroundColor = backgroundColor
         self.resizeToAvoidBottomInset = resizeToAvoidBottomInset
         self.extendBody = extendBody
@@ -556,6 +558,7 @@ class Scaffold(Widget):
         drawer_html = self.drawer.to_html() if self.drawer else ""
         end_drawer_html = self.endDrawer.to_html() if self.endDrawer else ""
         bottom_sheet_html = self.bottomSheet.to_html() if self.bottomSheet else ""
+        snack_bar_html = self.snackBar.to_html() if self.snackBar else ""
         footer_buttons_html = ''.join([button.to_html() for button in (self.persistentFooterButtons or [])])
 
         background_color_style = f"background-color: {self.backgroundColor};"
@@ -592,6 +595,7 @@ class Scaffold(Widget):
             </div>
             {floating_action_button_html}
             {bottom_sheet_html}
+            {snack_bar_html}
             <div style="position: absolute; bottom: 0; width: 100%; display: flex; justify-content: {self.persistentFooterAlignment};">
                 {footer_buttons_html}
             </div>
@@ -619,7 +623,7 @@ class Divider(Widget):
         self.border = border
     def to_html(self):
         return f"""
-        <hr style="height: {self.height}px; background-color: {self.color}; border: {self.border}; margin: {self.margin.to_css()};">
+        <hr  id="divider" style="height: {self.height}px; background-color: {self.color}; border: {self.border}; margin: {self.margin.to_css()};">
         """
 
 class Drawer(Widget):
@@ -677,6 +681,38 @@ class EndDrawer(Widget):
 
 
 
+class BottomSheet(Widget):
+    def __init__(self, child, height=300, backgroundColor=Colors.color('white'), elevation='', padding=EdgeInsets.all(20), enableDrag=True):
+        self.child = child
+        self.height = height
+        self.backgroundColor = backgroundColor
+        self.elevation = elevation
+        self.padding = padding
+        self.enableDrag = enableDrag
+        self.is_open = False
+
+    def to_html(self):
+        drag_behavior = 'cursor: grab;' if self.enableDrag else ''
+        return f"""
+        <div id="bottomSheet" style="position: fixed; left: 0; bottom: 0; width: 100%; height: {self.height}px; padding: {self.padding.to_css()}; background-color: {self.backgroundColor}; box-shadow:{self.elevation}; transform: translateY(100%); transition: transform 0.3s ease; {drag_behavior}">
+            {self.child.to_html()}
+        </div>
+        """
+
+
+class Center(Widget):
+    def __init__(self, child):
+        self.child = child
+
+    def to_html(self):
+        return f"""
+        <div id="center" style="display: flex; justify-content: center; align-items: center; height: 100%;">
+            {self.child.to_html()}
+        </div>
+        """
+
+
+
 class ListTile(Widget):
     def __init__(self, leading=None, title=None, subtitle=None, onTap=None):
         self.leading = leading
@@ -691,7 +727,7 @@ class ListTile(Widget):
         onClick = f'onclick="handleClick(\'{self.onTap}\')"' if self.onTap else ""
 
         return f"""
-        <div class="list-tile" style="display: flex; align-items: center; padding: 10px; cursor: pointer;" {onClick}>
+        <div id="listTile" class="list-tile" style="display: flex; align-items: center; padding: 10px; cursor: pointer;" {onClick}>
             <div style="margin-right: 10px;">{leading_html}</div>
             <div>
                 <div>{title_html}</div>
@@ -700,3 +736,38 @@ class ListTile(Widget):
         </div>
         """
 
+
+
+
+class SnackBar(Widget):
+    def __init__(self, content, action=None, duration=3000, backgroundColor=Colors.color('grey'), padding=EdgeInsets.symmetric(horizontal=24, vertical=16)):
+        self.content = content
+        self.action = action
+        self.duration = duration
+        self.backgroundColor = backgroundColor
+        self.padding = padding
+        self.is_visible = False
+
+    def to_html(self):
+        action_html = self.action.to_html() if self.action else ""
+        display_style = "flex" if self.is_visible else "none"
+        return f"""
+        <div id="snackBar" style="display: {display_style}; position: fixed; bottom: 0; left: 0; width: calc(100% - 48px); padding: {self.padding.to_css()}; background-color: {self.backgroundColor}; box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3); z-index: 1000; justify-content: space-between; align-items: center;">
+            <div>{self.content.to_html()}</div>
+            {action_html}
+        </div>
+        """
+
+
+class SnackBarAction(Widget):
+    def __init__(self, label, onPressed, textColor=Colors.color('blue')):
+        self.label = label
+        self.onPressed = onPressed
+        self.textColor = textColor
+
+    def to_html(self):
+        return f"""
+        <button onclick="handleClick(\'{self.onPressed}\')" style="background: none; border: none; color: {self.textColor}; font-size: 14px; cursor: pointer;">
+            {self.label}
+        </button>
+        """

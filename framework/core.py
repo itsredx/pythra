@@ -1,5 +1,7 @@
 # framework/core.py
 import importlib
+import time
+import threading
 import os
 import inspect
 import sys
@@ -17,6 +19,9 @@ class Framework:
         self.root_widget = None
         self.window = None
         self.drawer = None
+        self.end_drawer = None
+        self.bottom_sheet = None
+        self.snack_bar = None
         self.asset_server = AssetServer(directory='assets', port=8000)
         self.asset_server.start()
 
@@ -25,6 +30,8 @@ class Framework:
         if isinstance(widget, Scaffold):
             self.drawer = widget.drawer
             self.end_drawer = widget.endDrawer
+            self.bottom_sheet = widget.bottomSheet
+            self.snack_bar = widget.snackBar
             self.body = widget.body
 
         
@@ -112,11 +119,41 @@ class Framework:
             
             self.window.evaluate_js(script_1 + script_2 + script_3 + script_4)
 
+    def show_bottom_sheet(self):
+        if self.bottom_sheet:
+            self.bottom_sheet.is_open = True
+            script = 'document.getElementById("bottomSheet").style.transform = "translateY(0)";'
+            self.window.evaluate_js(script)
+
+    def hide_bottom_sheet(self):
+        if self.bottom_sheet:
+            self.bottom_sheet.is_open = False
+            script = f'document.getElementById("bottomSheet").style.transform = "translateY(100%)";'
+            self.window.evaluate_js(script)
+
+
+    def show_snack_bar(self):
+        if self.snack_bar:
+            self.snack_bar.is_visible = True
+            script = 'document.getElementById("snackBar").style.display = "flex";'
+            self.window.evaluate_js(script)
+            # Start a thread to hide the SnackBar after the specified duration
+            threading.Thread(target=self._auto_hide_snack_bar, daemon=True).start()
+
+    def _auto_hide_snack_bar(self):
+        if self.snack_bar:
+            time.sleep(self.snack_bar.duration / 1000)
+            self.hide_snack_bar()
+
+    def hide_snack_bar(self):
+        if self.snack_bar and self.snack_bar.is_visible:
+            self.snack_bar.is_visible = False
+            script = 'document.getElementById("snackBar").style.display = "none";'
+            self.window.evaluate_js(script)
+
+
     def update_content(self):
         if self.window:
             html_content = self.root_widget.to_html()
             script = f'document.body.innerHTML = `{html_content}`;'
             self.window.evaluate_js(script)
-
-
-

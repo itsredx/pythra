@@ -21,11 +21,36 @@ class MyApp:
     def toggle_end_drawer(self):
         self.framework.toggle_end_drawer()
 
+    def show_bottom_sheet(self):
+        self.framework.show_bottom_sheet()
+
+    def hide_bottom_sheet(self):
+        self.framework.hide_bottom_sheet()
+
+    def show_snack_bar(self):
+        self.framework.show_snack_bar()
+    
+    def hide_snack_bar(self):
+        self.framework.hide_snack_bar()
+
+    def undo(self):
+        print("Undo action")
+
     def update_ui(self):
         # Define the content for each tab
         content = [
             Container(
-                child=Text('Welcome to the Home Page!'),
+                child=Column(
+                children=[
+                    Text('Welcome to the Home Page!'),
+                    IconButton(
+                        child=Icon('plus'),
+                        onPressed='show_bottom_sheet'),
+                    IconButton(
+                        child=Icon('flask'),
+                        onPressed='show_snack_bar'),
+                ]
+            ),
                 padding=EdgeInsets.all(20),
                 margin=EdgeInsets.all(20),
                 constraints= BoxConstraints(max_width= 300, max_height=300),
@@ -46,6 +71,15 @@ class MyApp:
                 )
         ]
 
+        column = Column(
+            children=[
+                Text('Welcome to the Home Page!'),
+                IconButton(
+                    child=Icon('plus'),
+                    onPressed='show_bottom_sheet'),
+            ]
+        )
+
         # Set the content based on the current index
         body_content = content[self.currentIndex]
 
@@ -63,6 +97,18 @@ class MyApp:
             divider=Divider(
                 margin=EdgeInsets.symmetric(8,0)
             ),
+        )
+
+        snack_bar_action = SnackBarAction(
+            label="UNDO",
+            onPressed='undo'
+        )
+
+        snack_bar = SnackBar(
+            content=Text("Item deleted"),
+            action=snack_bar_action,
+            duration=5000,
+            backgroundColor=Colors.color("darkgrey"),
         )
 
         scaffold = Scaffold(
@@ -100,7 +146,21 @@ class MyApp:
                 unselectedItemColor=Colors.color('grey'),
                 showSelectedLabels=True,
                 showUnselectedLabels=False,
-            )
+            ),
+            bottomSheet=BottomSheet(
+                child=Column(
+                    children=[
+                        Text("This is a BottomSheet"),
+                        IconButton(
+                            child=Icon('minus'),
+                            onPressed='hide_bottom_sheet'),
+                    ]
+                ),
+                height=300,
+                backgroundColor=Colors.color("lightgrey"),
+                enableDrag=True
+            ),
+            snackBar=snack_bar
         )
 
         self.framework.set_root(scaffold)
@@ -109,6 +169,10 @@ class MyApp:
         self.framework.api.register_callback('on_tab_selected', self.on_tab_selected)
         self.framework.api.register_callback('toggle_drawer', self.toggle_drawer)
         self.framework.api.register_callback('toggle_end_drawer', self.toggle_end_drawer)
+        self.framework.api.register_callback('show_bottom_sheet', self.show_bottom_sheet)
+        self.framework.api.register_callback('hide_bottom_sheet', self.hide_bottom_sheet)
+        self.framework.api.register_callback('show_snack_bar', self.show_snack_bar)
+        self.framework.api.register_callback('undo', self.undo)
         self.update_ui()
         self.framework.run(title='MyApp')
 
