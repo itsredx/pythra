@@ -1,8 +1,11 @@
+# framework/widgets.py
+
 import yaml
 import os
+from .api import Api
 from .base import Widget
-from framework.styles import *
-from framework.config import Config
+from .styles import *
+from .config import Config
 
 config = Config()
 assets_dir = config.get('assets_dir', 'assets')
@@ -10,9 +13,6 @@ assets_dir = config.get('assets_dir', 'assets')
 class Widget:
     def to_html(self):
         raise NotImplementedError("Each widget must implement the to_html method.")
-
-
-# framework/widgets.py
 
 
 class Container(Widget):
@@ -77,10 +77,14 @@ class TextButton(Widget):
         self.onPressed = onPressed
         self.style = style or ButtonStyle()
 
+        self.api = Api()
+        self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
+
     def to_html(self):
         style = self.style.to_css()
         button_id = f'text_button_{id(self)}'
-        return f"<button id='{button_id}' style='{style}' onclick='handleClick(\"{self.onPressed}\")'>{self.child.to_html()}</button>"
+        self.api.register_callback(self.onPressedName, self.onPressed)
+        return f"<button id='{button_id}' style='{style}' onclick='handleClick(\"{self.onPressedName}\")'>{self.child.to_html()}</button>"
 
 
 class ElevatedButton(Widget):
@@ -89,10 +93,14 @@ class ElevatedButton(Widget):
         self.onPressed = onPressed
         self.style = style or ButtonStyle()
 
+        self.api = Api()
+        self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
+
     def to_html(self):
         style = self.style.to_css()
         button_id = f'elevated_button_{id(self)}'
-        return f"<button id='{button_id}' style='{style}' onclick='handleClick(\"{self.onPressed}\")'>{self.child.to_html()}</button>"
+        self.api.register_callback(self.onPressedName, self.onPressed)
+        return f"<button id='{button_id}' style='{style}' onclick='handleClick(\"{self.onPressedName}\")'>{self.child.to_html()}</button>"
 
 
 class IconButton(Widget):
@@ -100,14 +108,20 @@ class IconButton(Widget):
         self.child = child
         self.onPressed = onPressed
         self.style = style or ButtonStyle()
+        self.api = Api()
+
+        self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
 
     def to_html(self):
         button_id = f"icon_button_{id(self)}"
         style = self.style.to_css()
         child_html = self.child.to_html() if isinstance(self.child, Widget) else self.child
 
+        
+        self.api.register_callback(self.onPressedName, self.onPressed)
+
         return f"""
-        <button id='{button_id}' style='{style}' onclick='handleClick("{self.onPressed}")'>
+        <button id='{button_id}' style='{style}' onclick='handleClick("{self.onPressedName}")'>
             {child_html}
         </button>
         """
@@ -118,8 +132,14 @@ class FloatingActionButton(Widget):
         self.onPressed = onPressed
         self.key = key
 
+        self.api = Api()
+        self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
+
     def to_html(self):
-        onClick = f"onclick='handleClick(\"{self.onPressed}\")'" if self.onPressed else ""
+        self.api.register_callback(self.onPressedName, self.onPressed)
+
+        onClick = f"onclick='handleClick(\"{self.onPressedName}\")'" if self.onPressed else ""
+        
         return f"""
         <button id='floatingButton' style="position: fixed; bottom: 16px; right: 16px; border-radius: 50%; width: 56px; height: 56px; background-color: #f50057; color: white; border: none; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2);" {onClick}>
             {self.child.to_html() if self.child else ''}
@@ -463,7 +483,11 @@ class BottomNavigationBar(Widget):
         self.showUnselectedLabels = showUnselectedLabels
         self.landscapeLayout = landscapeLayout
 
+        self.api = Api()
+        self.onTapName = self.onTap.__name__ if self.onTap else ''
+
     def to_html(self):
+        self.api.register_callback(self.onTapName, self.onTap)
         items_html = ''
         for index, item in enumerate(self.items):
             selected = index == self.currentIndex
@@ -471,10 +495,11 @@ class BottomNavigationBar(Widget):
             font_size = self.selectedFontSize if selected else self.unselectedFontSize
 
             item.icon.size = self.iconSize
+            
 
             item_html = item.to_html(selected=selected, showSelectedLabels = self.showSelectedLabels, showUnselectedLabels= self.showUnselectedLabels, fixedColor=self.fixedColor)
             item_style = f"color: {color}; font-size: {font_size}px; cursor: pointer; flex: 1;"
-            items_html += f"<div onclick='handleClickOnTap(\"{self.onTap}\", {index})' style='{item_style}'>{item_html}</div>"
+            items_html += f"<div onclick='handleClickOnTap(\"{self.onTapName}\", {index})' style='{item_style}'>{item_html}</div>"
 
         return f"""
         <div id="bottomNav" style='height: 60px; background-color: {self.backgroundColor}; box-shadow: 0 -2px 10px rgba(0,0,0,0.2); display: flex; justify-content: center; align-items: center;  position: relative; z-index: 1;'>

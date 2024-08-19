@@ -45,10 +45,10 @@ class MyApp:
                     Text('Welcome to the Home Page!'),
                     IconButton(
                         child=Icon('plus'),
-                        onPressed='show_bottom_sheet'),
+                        onPressed= self.show_bottom_sheet),
                     IconButton(
                         child=Icon('flask'),
-                        onPressed='show_snack_bar'),
+                        onPressed= self.show_snack_bar),
                 ]
             ),
                 padding=EdgeInsets.all(20),
@@ -76,7 +76,8 @@ class MyApp:
                 Text('Welcome to the Home Page!'),
                 IconButton(
                     child=Icon('plus'),
-                    onPressed='show_bottom_sheet'),
+                    onPressed= self.show_bottom_sheet
+                    ),
             ]
         )
 
@@ -118,11 +119,11 @@ class MyApp:
                 shadowColor=Colors.rgba(0,0,0,0.2), 
                 leading=IconButton(
                     child=Icon('bars'),
-                    onPressed='toggle_drawer'),
+                    onPressed= self.toggle_drawer),
                 actions=[
                 IconButton(
                     child=Icon('bars'),
-                    onPressed='toggle_end_drawer'),
+                    onPressed= self.toggle_end_drawer),
             ],
             ) if self.currentIndex == 0 else None,
             
@@ -134,7 +135,7 @@ class MyApp:
                     BottomNavigationBarItem(icon=Icon('home'), label='Home'),
                     BottomNavigationBarItem(icon=Icon('gear'), label='Settings'),
                 ],
-                onTap='on_tab_selected',
+                onTap= self.on_tab_selected,
                 currentIndex=self.currentIndex,
                 #fixedColor=Colors.color('blue'),
                 backgroundColor=Colors.color('white'),
@@ -153,7 +154,8 @@ class MyApp:
                         Text("This is a BottomSheet"),
                         IconButton(
                             child=Icon('minus'),
-                            onPressed='hide_bottom_sheet'),
+                            onPressed= self.hide_bottom_sheet
+                            ),
                     ]
                 ),
                 height=300,
@@ -166,13 +168,13 @@ class MyApp:
         self.framework.set_root(scaffold)
 
     def run(self):
-        self.framework.api.register_callback('on_tab_selected', self.on_tab_selected)
-        self.framework.api.register_callback('toggle_drawer', self.toggle_drawer)
-        self.framework.api.register_callback('toggle_end_drawer', self.toggle_end_drawer)
-        self.framework.api.register_callback('show_bottom_sheet', self.show_bottom_sheet)
-        self.framework.api.register_callback('hide_bottom_sheet', self.hide_bottom_sheet)
-        self.framework.api.register_callback('show_snack_bar', self.show_snack_bar)
-        self.framework.api.register_callback('undo', self.undo)
+        #self.framework.api.register_callback('on_tab_selected', self.on_tab_selected)
+        #self.framework.api.register_callback('toggle_drawer', self.toggle_drawer)
+        #self.framework.api.register_callback('toggle_end_drawer', self.toggle_end_drawer)
+        #self.framework.api.register_callback('show_bottom_sheet', self.show_bottom_sheet)
+        #self.framework.api.register_callback('hide_bottom_sheet', self.hide_bottom_sheet)
+        #self.framework.api.register_callback('show_snack_bar', self.show_snack_bar)
+        #self.framework.api.register_callback('undo', self.undo)
         self.update_ui()
         self.framework.run(title='MyApp')
 

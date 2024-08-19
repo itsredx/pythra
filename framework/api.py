@@ -4,6 +4,13 @@ class Api:
     def __init__(self):
         self.callbacks = {}
 
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(Api, cls).__new__(cls)
+        return cls._instance
+
     def register_callback(self, name, callback):
         self.callbacks[name] = callback
 
@@ -16,3 +23,4 @@ class Api:
             return f"Callback '{callback_name}' executed successfully."
         else:
             return f"Callback '{callback_name}' not found."
+

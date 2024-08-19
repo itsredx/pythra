@@ -16,4 +16,4 @@ class BorderSide:
     def to_int(self):
         return self.width
 
-print(BorderSide(width=200).to_int())
+print(BorderSide.__name__)

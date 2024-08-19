@@ -6,7 +6,7 @@ import os
 import inspect
 import sys
 import webview
-from .widgets import Container, Column, IconButton, Icon, Text, Scaffold
+from .widgets import *
 from .api import Api
 from .config import Config
 from .server import AssetServer
