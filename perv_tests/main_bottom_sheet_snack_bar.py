@@ -102,7 +102,7 @@ class MyApp:
 
         snack_bar_action = SnackBarAction(
             label="UNDO",
-            onPressed=self.undo
+            onPressed='undo'
         )
 
         snack_bar = SnackBar(

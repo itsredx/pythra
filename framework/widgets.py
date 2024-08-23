@@ -745,11 +745,16 @@ class ListTile(Widget):
         self.subtitle = subtitle
         self.onTap = onTap
 
+        self.api = Api()
+        self.onTapName = self.onTap.__name__ if self.onTap else ''
+
     def to_html(self):
+        self.api.register_callback(self.onTapName, self.onTap)
+
         leading_html = self.leading.to_html() if self.leading else ""
         title_html = self.title.to_html() if self.title else ""
         subtitle_html = self.subtitle.to_html() if self.subtitle else ""
-        onClick = f'onclick="handleClick(\'{self.onTap}\')"' if self.onTap else ""
+        onClick = f'onclick="handleClick(\'{self.onTapName}\')"' if self.onTap else ""
 
         return f"""
         <div id="listTile" class="list-tile" style="display: flex; align-items: center; padding: 10px; cursor: pointer;" {onClick}>
@@ -790,9 +795,14 @@ class SnackBarAction(Widget):
         self.onPressed = onPressed
         self.textColor = textColor
 
+        self.api = Api()
+        self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
+
     def to_html(self):
+        self.api.register_callback(self.onPressedName, self.onPressed)
+
         return f"""
-        <button onclick="handleClick(\'{self.onPressed}\')" style="background: none; border: none; color: {self.textColor}; font-size: 14px; cursor: pointer;">
+        <button onclick="handleClick(\'{self.onPressedName}\')" style="background: none; border: none; color: {self.textColor}; font-size: 14px; cursor: pointer;">
             {self.label}
         </button>
         """
