@@ -168,13 +168,6 @@ class MyApp:
         self.framework.set_root(scaffold)
 
     def run(self):
-        #self.framework.api.register_callback('on_tab_selected', self.on_tab_selected)
-        #self.framework.api.register_callback('toggle_drawer', self.toggle_drawer)
-        #self.framework.api.register_callback('toggle_end_drawer', self.toggle_end_drawer)
-        #self.framework.api.register_callback('show_bottom_sheet', self.show_bottom_sheet)
-        #self.framework.api.register_callback('hide_bottom_sheet', self.hide_bottom_sheet)
-        #self.framework.api.register_callback('show_snack_bar', self.show_snack_bar)
-        #self.framework.api.register_callback('undo', self.undo)
         self.update_ui()
         self.framework.run(title='MyApp')
 

@@ -29,6 +29,9 @@ class Container(Widget):
         self.transform = transform
         self.alignment = alignment
         self.clipBehavior = clipBehavior
+        
+    def widget_id(self):
+        return 'container'
 
     def to_html(self):
         padding_str = f'padding: {self.padding.to_css()};' if self.padding else ''
@@ -58,6 +61,10 @@ class Text(Widget):
         self.textAlign = textAlign
         self.overflow = overflow
 
+    
+    def widget_id(self):
+        return 'text'
+
     def to_html(self):
         style = self.style.to_css()
         text_align_str = self.textAlign if self.textAlign else ''
@@ -80,6 +87,9 @@ class TextButton(Widget):
         self.api = Api()
         self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
 
+    def widget_id(self):
+        return f'text_button_{id(self)}'
+
     def to_html(self):
         style = self.style.to_css()
         button_id = f'text_button_{id(self)}'
@@ -96,6 +106,10 @@ class ElevatedButton(Widget):
         self.api = Api()
         self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
 
+
+    def widget_id(self):
+        return f'elevated_button_{id(self)}'
+
     def to_html(self):
         style = self.style.to_css()
         button_id = f'elevated_button_{id(self)}'
@@ -111,6 +125,11 @@ class IconButton(Widget):
         self.api = Api()
 
         self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
+
+
+    def widget_id(self):
+        return f'icon_button_{id(self)}'
+
 
     def to_html(self):
         button_id = f"icon_button_{id(self)}"
@@ -135,6 +154,9 @@ class FloatingActionButton(Widget):
         self.api = Api()
         self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
 
+    def widget_id(self):
+        return 'floatingButton'
+
     def to_html(self):
         self.api.register_callback(self.onPressedName, self.onPressed)
 
@@ -157,6 +179,9 @@ class Column(Widget):
         self.textDirection = textDirection
         self.verticalDirection = verticalDirection
         self.textBaseline = textBaseline
+
+    def widget_id(self):
+        return 'column'
 
     def to_html(self):
         children_html = ''.join([child.to_html() for child in self.children])
@@ -190,6 +215,9 @@ class Row(Widget):
         self.verticalDirection = verticalDirection
         self.textBaseline = textBaseline
 
+    def widget_id(self):
+        return 'row'
+
     def to_html(self):
         children_html = ''.join([child.to_html() for child in self.children])
 
@@ -218,6 +246,9 @@ class Image(Widget):
         self.fit = fit
         self.alignment = alignment
 
+    def widget_id(self):
+        return 'image'
+
     def to_html(self):
         src = self.image.get_source()
         style = f"object-fit: {self.fit}; width: {self.width}px; height: {self.height}px; display: flex; justify-content: center; align-items: center;"
@@ -245,6 +276,12 @@ class Icon(Widget):
         self.custom_icon = custom_icon
         self.size = size
         self.color = color
+        
+
+
+    def widget_id(self):
+        return 'icon'
+
 
     def to_html(self):
         if self.custom_icon:
@@ -269,6 +306,11 @@ class ListView(Widget):
         self.itemExtent = itemExtent
         self.cacheExtent = cacheExtent
         self.semanticChildCount = semanticChildCount
+
+
+    def widget_id(self):
+        return 'listView'
+
 
     def to_html(self):
         scroll_direction_style = "flex-direction: column;" if self.scrollDirection == Axis.VERTICAL else "flex-direction: row;"
@@ -309,6 +351,12 @@ class GridView(Widget):
         self.crossAxisSpacing = crossAxisSpacing
         self.childAspectRatio = childAspectRatio
 
+
+    def widget_id(self):
+        return 'gridView'
+
+
+
     def to_html(self):
         scroll_direction_style = "flex-direction: column;" if self.scrollDirection == Axis.VERTICAL else "flex-direction: row;"
         reverse_style = "flex-direction: column-reverse;" if self.reverse else ""
@@ -344,6 +392,11 @@ class Stack(Widget):
         self.overflow = overflow
         self.key = key
 
+
+    def widget_id(self):
+        return 'stack'
+
+
     def to_html(self):
         alignment_style = self.alignment.to_css()
         text_direction_style = f"direction: {self.textDirection};"
@@ -372,6 +425,11 @@ class Positioned(Widget):
         self.bottom = bottom
         self.left = left
 
+
+    def widget_id(self):
+        return 'positioned'
+
+
     def to_html(self):
         top_style = f"top: {self.top}px;" if self.top is not None else ""
         right_style = f"right: {self.right}px;" if self.right is not None else ""
@@ -391,6 +449,12 @@ class Expanded(Widget):
         self.flex = flex
         self.key = key
 
+
+    def widget_id(self):
+        return 'expanded'
+
+
+
     def to_html(self):
         return f"<div id='expanded' style='flex: {self.flex};'>{self.child.to_html()}</div>"
 
@@ -400,6 +464,11 @@ class Spacer(Widget):
     def __init__(self, flex=1, key=None):
         self.flex = flex
         self.key = key
+
+
+    def widget_id(self):
+        return 'spacer'
+
 
     def to_html(self):
         return f"<div id='spacer' style='flex: {self.flex};'></div>"
@@ -418,6 +487,12 @@ class AppBar(Widget):
         self.shadowColor = shadowColor
         self.pinned = pinned
         self.bottom = bottom
+        
+
+    def widget_id(self):
+        return 'appBar'
+
+
 
     def to_html(self):
         pinned_style = 'position: fixed; width: 100%;' if self.pinned else 'position: relative;'
@@ -486,6 +561,12 @@ class BottomNavigationBar(Widget):
         self.api = Api()
         self.onTapName = self.onTap.__name__ if self.onTap else ''
 
+
+
+    def widget_id(self):
+        return 'bottomNav'
+
+
     def to_html(self):
         self.api.register_callback(self.onTapName, self.onTap)
         items_html = ''
@@ -512,6 +593,12 @@ class BottomNavigationBarItem:
     def __init__(self, icon, label):
         self.icon = icon
         self.label = label
+
+
+
+    def widget_id(self):
+        return 'bottomNavItem'
+
 
     def to_html(self, selected=False, showSelectedLabels=True, showUnselectedLabels=False, iconSize=30, fixedColor=None):
         # Set the color to fixedColor if provided, otherwise use default behavior
@@ -575,6 +662,12 @@ class Scaffold(Widget):
         self.primary = primary
         self.key = key
 
+
+
+    def widget_id(self):
+        return 'scaffold'
+
+
     def to_html(self):
         appBar_html = self.appBar.to_html() if self.appBar else ""
         body_html = self.body.to_html() if self.body else ""
@@ -633,6 +726,9 @@ class Body(Widget):
     def __init__(self, child=None):
         self.child = child
 
+    def widget_id(self):
+        return 'body'
+
     def to_html(self):
         child_html = self.child.to_html() if self.child else ''
         
@@ -646,6 +742,12 @@ class Divider(Widget):
         self.margin = margin
         self.color = color
         self.border = border
+
+
+    def widget_id(self):
+        return 'divider'
+
+
     def to_html(self):
         return f"""
         <hr  id="divider" style="height: {self.height}px; background-color: {self.color}; border: {self.border}; margin: {self.margin.to_css()};">
@@ -661,6 +763,12 @@ class Drawer(Widget):
         self.divider = divider
         self.backgroundColor = backgroundColor
         self.is_open = False
+
+
+
+    def widget_id(self):
+        return 'drawer'
+
 
     def to_html(self):
         divider = self.divider.to_html() if self.divider else ''
@@ -690,6 +798,12 @@ class EndDrawer(Widget):
         self.backgroundColor = backgroundColor
         self.is_open = False
 
+
+
+    def widget_id(self):
+        return 'endDrawer'
+
+
     def to_html(self):
         divider = self.divider.to_html() if self.divider else ''
         end_drawer_width = self.width + self.padding.to_int_horizontal() + self.borderLeft.to_int()
@@ -716,6 +830,12 @@ class BottomSheet(Widget):
         self.enableDrag = enableDrag
         self.is_open = False
 
+
+
+    def widget_id(self):
+        return 'bottomSheet'
+
+
     def to_html(self):
         drag_behavior = 'cursor: grab;' if self.enableDrag else ''
         return f"""
@@ -728,6 +848,12 @@ class BottomSheet(Widget):
 class Center(Widget):
     def __init__(self, child):
         self.child = child
+
+
+
+    def widget_id(self):
+        return 'center'
+
 
     def to_html(self):
         return f"""
@@ -747,6 +873,12 @@ class ListTile(Widget):
 
         self.api = Api()
         self.onTapName = self.onTap.__name__ if self.onTap else ''
+
+
+
+    def widget_id(self):
+        return 'listTile'
+
 
     def to_html(self):
         self.api.register_callback(self.onTapName, self.onTap)
@@ -778,6 +910,12 @@ class SnackBar(Widget):
         self.padding = padding
         self.is_visible = False
 
+
+
+    def widget_id(self):
+        return 'snackBar'
+
+
     def to_html(self):
         action_html = self.action.to_html() if self.action else ""
         display_style = "flex" if self.is_visible else "none"
@@ -798,11 +936,16 @@ class SnackBarAction(Widget):
         self.api = Api()
         self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
 
+
+
+    def widget_id(self):
+        return 'snackBarAction'
+
     def to_html(self):
         self.api.register_callback(self.onPressedName, self.onPressed)
 
         return f"""
-        <button onclick="handleClick(\'{self.onPressedName}\')" style="background: none; border: none; color: {self.textColor}; font-size: 14px; cursor: pointer;">
+        <button id="snackBarAction" onclick="handleClick(\'{self.onPressedName}\')" style="background: none; border: none; color: {self.textColor}; font-size: 14px; cursor: pointer;">
             {self.label}
         </button>
         """

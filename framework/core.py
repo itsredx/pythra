@@ -18,6 +18,7 @@ class Framework:
         self.api = Api()
         self.root_widget = None
         self.window = None
+        self.scaffold = None
         self.drawer = None
         self.end_drawer = None
         self.bottom_sheet = None
@@ -35,7 +36,7 @@ class Framework:
             self.body = widget.body
 
         
-        self.collect_callbacks(widget)       
+        #.collect_callbacks(widget)       
         if self.window:
             self.update_content()
 
@@ -156,4 +157,11 @@ class Framework:
         if self.window:
             html_content = self.root_widget.to_html()
             script = f'document.body.innerHTML = `{html_content}`;'
+            self.window.evaluate_js(script)
+
+    def update_widget(self, widget):
+        if self.window:
+            html_widget = widget.to_html()
+            widget_id = widget.widget_id()
+            script = f'document.getElementById("{widget_id}").innerHTML = `{html_widget}`;'
             self.window.evaluate_js(script)
