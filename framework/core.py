@@ -159,9 +159,4 @@ class Framework:
             script = f'document.body.innerHTML = `{html_content}`;'
             self.window.evaluate_js(script)
 
-    def update_widget(self, widget):
-        if self.window:
-            html_widget = widget.to_html()
-            widget_id = widget.widget_id()
-            script = f'document.getElementById("{widget_id}").innerHTML = `{html_widget}`;'
-            self.window.evaluate_js(script)
+
