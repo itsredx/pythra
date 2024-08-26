@@ -10,10 +10,22 @@ from .widgets import *
 from .api import Api
 from .config import Config
 from .server import AssetServer
+from .base import Widget
+import weakref
+
 
 
 
 class Framework:
+    _instance = None
+
+    @classmethod
+    def instance(cls):
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
+
+
     def __init__(self):
         self.api = Api()
         self.root_widget = None
@@ -25,9 +37,23 @@ class Framework:
         self.snack_bar = None
         self.asset_server = AssetServer(directory='assets', port=8000)
         self.asset_server.start()
+        self.widget_registry = {}
+        if Framework._instance is not None:
+            raise Exception("This class is a singleton!")
+        Framework._instance = self
+        Widget.set_framework(self)  # Set the framework in Widget
+        self.widgets = []
+
+    def register_widget(self, widget):
+        self.widget_registry[widget.widget_id()] = widget
+        print('Widget registry: ', self.widget_registry)
+
+    def get_widget(self, widget_id):
+        return self.widget_registry.get(widget_id)
 
     def set_root(self, widget):
         self.root_widget = widget
+        
         if isinstance(widget, Scaffold):
             self.drawer = widget.drawer
             self.end_drawer = widget.endDrawer
@@ -154,9 +180,16 @@ class Framework:
 
 
     def update_content(self):
+        
         if self.window:
             html_content = self.root_widget.to_html()
             script = f'document.body.innerHTML = `{html_content}`;'
             self.window.evaluate_js(script)
 
-
+    def update_widget(self, widget):
+        if self.window:
+            html_widget = widget.to_html()
+            widget_id = widget.widget_id()
+            print(widget, widget_id, html_widget)
+            script = f'document.getElementById("{widget_id}").innerHTML = {html_widget};'
+            self.window.evaluate_js(script)

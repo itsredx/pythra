@@ -1,5 +1,5 @@
 # framework/widgets.py
-
+import uuid
 import yaml
 import os
 from .api import Api
@@ -10,9 +10,23 @@ from .config import Config
 config = Config()
 assets_dir = config.get('assets_dir', 'assets')
 
+
+
+"""
 class Widget:
+    def __init__(self, widget_id=None):
+        self._id = str(uuid.uuid4())
+
+    def widget_id(self):
+        return self._id
+
+
     def to_html(self):
         raise NotImplementedError("Each widget must implement the to_html method.")
+"""
+
+
+
 
 
 class Container(Widget):
@@ -30,8 +44,7 @@ class Container(Widget):
         self.alignment = alignment
         self.clipBehavior = clipBehavior
         
-    def widget_id(self):
-        return 'container'
+    
 
     def to_html(self):
         padding_str = f'padding: {self.padding.to_css()};' if self.padding else ''
@@ -54,7 +67,8 @@ class Container(Widget):
         """
 
 class Text(Widget):
-    def __init__(self, data, key=None, style=None, textAlign=None, overflow=None):
+    def __init__(self, data, key=None, style=None, textAlign=None, overflow=None, widget_id=None):
+        super().__init__(widget_id)
         self.data = data
         self.key = key
         self.style = style or TextStyle()
@@ -62,8 +76,7 @@ class Text(Widget):
         self.overflow = overflow
 
     
-    def widget_id(self):
-        return 'text'
+    
 
     def to_html(self):
         style = self.style.to_css()
@@ -74,7 +87,7 @@ class Text(Widget):
         if self.overflow:
             style += f"overflow: {self.overflow};"
 
-        return f"<p id='text' style='{style}'>{self.data}</p>"
+        return f"<p id='{self.widget_id()}' style='{style}'>{self.data}</p>"
 
 
 
@@ -87,8 +100,7 @@ class TextButton(Widget):
         self.api = Api()
         self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
 
-    def widget_id(self):
-        return f'text_button_{id(self)}'
+    
 
     def to_html(self):
         style = self.style.to_css()
@@ -107,8 +119,7 @@ class ElevatedButton(Widget):
         self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
 
 
-    def widget_id(self):
-        return f'elevated_button_{id(self)}'
+   
 
     def to_html(self):
         style = self.style.to_css()
@@ -127,8 +138,7 @@ class IconButton(Widget):
         self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
 
 
-    def widget_id(self):
-        return f'icon_button_{id(self)}'
+    
 
 
     def to_html(self):
@@ -154,8 +164,7 @@ class FloatingActionButton(Widget):
         self.api = Api()
         self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
 
-    def widget_id(self):
-        return 'floatingButton'
+    
 
     def to_html(self):
         self.api.register_callback(self.onPressedName, self.onPressed)
@@ -170,8 +179,9 @@ class FloatingActionButton(Widget):
  
 
 class Column(Widget):
-    def __init__(self, children=[], key=None, mainAxisAlignment=MainAxisAlignment.START, mainAxisSize= MainAxisSize.MAX, crossAxisAlignment=CrossAxisAlignment.CENTER, textDirection=TextDirection.LTR, verticalDirection= VerticalDirection.DOWN, textBaseline=TextBaseline.alphabetic):
+    def __init__(self, children=[], key=None, mainAxisAlignment=MainAxisAlignment.START, mainAxisSize= MainAxisSize.MAX, crossAxisAlignment=CrossAxisAlignment.CENTER, textDirection=TextDirection.LTR, verticalDirection= VerticalDirection.DOWN, textBaseline=TextBaseline.alphabetic, widget_id=None):
         self.children = children
+        super().__init__(widget_id= 'column')
         self.key = key
         self.mainAxisAlignment = mainAxisAlignment
         self.mainAxisSize = mainAxisSize
@@ -180,8 +190,7 @@ class Column(Widget):
         self.verticalDirection = verticalDirection
         self.textBaseline = textBaseline
 
-    def widget_id(self):
-        return 'column'
+    
 
     def to_html(self):
         children_html = ''.join([child.to_html() for child in self.children])
@@ -200,7 +209,7 @@ class Column(Widget):
         elif self.mainAxisSize == 'max':
             styles += "width: 100%;"
 
-        return f"<div id='column' style='{styles}'>{children_html}</div>"
+        return f"<div id='{self.widget_id()}' style='{styles}'>{children_html}</div>"
 
 
 
@@ -215,8 +224,7 @@ class Row(Widget):
         self.verticalDirection = verticalDirection
         self.textBaseline = textBaseline
 
-    def widget_id(self):
-        return 'row'
+    
 
     def to_html(self):
         children_html = ''.join([child.to_html() for child in self.children])
@@ -246,8 +254,7 @@ class Image(Widget):
         self.fit = fit
         self.alignment = alignment
 
-    def widget_id(self):
-        return 'image'
+    
 
     def to_html(self):
         src = self.image.get_source()
@@ -279,8 +286,7 @@ class Icon(Widget):
         
 
 
-    def widget_id(self):
-        return 'icon'
+    
 
 
     def to_html(self):
@@ -308,8 +314,7 @@ class ListView(Widget):
         self.semanticChildCount = semanticChildCount
 
 
-    def widget_id(self):
-        return 'listView'
+    
 
 
     def to_html(self):
@@ -352,8 +357,7 @@ class GridView(Widget):
         self.childAspectRatio = childAspectRatio
 
 
-    def widget_id(self):
-        return 'gridView'
+    
 
 
 
@@ -393,8 +397,7 @@ class Stack(Widget):
         self.key = key
 
 
-    def widget_id(self):
-        return 'stack'
+    
 
 
     def to_html(self):
@@ -426,8 +429,7 @@ class Positioned(Widget):
         self.left = left
 
 
-    def widget_id(self):
-        return 'positioned'
+    
 
 
     def to_html(self):
@@ -450,8 +452,7 @@ class Expanded(Widget):
         self.key = key
 
 
-    def widget_id(self):
-        return 'expanded'
+    
 
 
 
@@ -489,8 +490,7 @@ class AppBar(Widget):
         self.bottom = bottom
         
 
-    def widget_id(self):
-        return 'appBar'
+    
 
 
 
@@ -563,8 +563,7 @@ class BottomNavigationBar(Widget):
 
 
 
-    def widget_id(self):
-        return 'bottomNav'
+    
 
 
     def to_html(self):
@@ -596,8 +595,7 @@ class BottomNavigationBarItem:
 
 
 
-    def widget_id(self):
-        return 'bottomNavItem'
+    
 
 
     def to_html(self, selected=False, showSelectedLabels=True, showUnselectedLabels=False, iconSize=30, fixedColor=None):
@@ -664,8 +662,7 @@ class Scaffold(Widget):
 
 
 
-    def widget_id(self):
-        return 'scaffold'
+    
 
 
     def to_html(self):
@@ -726,8 +723,7 @@ class Body(Widget):
     def __init__(self, child=None):
         self.child = child
 
-    def widget_id(self):
-        return 'body'
+    
 
     def to_html(self):
         child_html = self.child.to_html() if self.child else ''
@@ -744,8 +740,7 @@ class Divider(Widget):
         self.border = border
 
 
-    def widget_id(self):
-        return 'divider'
+    
 
 
     def to_html(self):
@@ -766,8 +761,7 @@ class Drawer(Widget):
 
 
 
-    def widget_id(self):
-        return 'drawer'
+    
 
 
     def to_html(self):
@@ -800,8 +794,7 @@ class EndDrawer(Widget):
 
 
 
-    def widget_id(self):
-        return 'endDrawer'
+    
 
 
     def to_html(self):
@@ -832,8 +825,7 @@ class BottomSheet(Widget):
 
 
 
-    def widget_id(self):
-        return 'bottomSheet'
+    
 
 
     def to_html(self):
@@ -851,8 +843,7 @@ class Center(Widget):
 
 
 
-    def widget_id(self):
-        return 'center'
+    
 
 
     def to_html(self):
@@ -876,8 +867,7 @@ class ListTile(Widget):
 
 
 
-    def widget_id(self):
-        return 'listTile'
+    
 
 
     def to_html(self):
@@ -912,8 +902,7 @@ class SnackBar(Widget):
 
 
 
-    def widget_id(self):
-        return 'snackBar'
+    
 
 
     def to_html(self):
@@ -938,8 +927,7 @@ class SnackBarAction(Widget):
 
 
 
-    def widget_id(self):
-        return 'snackBarAction'
+    
 
     def to_html(self):
         self.api.register_callback(self.onPressedName, self.onPressed)

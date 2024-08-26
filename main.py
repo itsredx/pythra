@@ -3,6 +3,7 @@
 from framework.core import Framework
 from framework.widgets import *
 from framework.styles import *
+from framework.widgets import Widget
 
 
 class MyApp:
@@ -170,6 +171,7 @@ class MyApp:
     def run(self):
         self.update_ui()
         self.framework.run(title='MyApp')
+        Widget(framework= self.framework)
 
 if __name__ == "__main__":
     app = MyApp()
