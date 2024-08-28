@@ -12,25 +12,9 @@ assets_dir = config.get('assets_dir', 'assets')
 
 
 
-"""
-class Widget:
-    def __init__(self, widget_id=None):
-        self._id = str(uuid.uuid4())
-
-    def widget_id(self):
-        return self._id
-
-
-    def to_html(self):
-        raise NotImplementedError("Each widget must implement the to_html method.")
-"""
-
-
-
-
-
 class Container(Widget):
     def __init__(self, child=None, padding=None, color=None, decoration=None, foregroundDecoration=None, width=None, height=None, constraints=None, margin=None, transform=None, alignment=None, clipBehavior=None):
+        super().__init__(widget_id=None)
         self.child = child
         self.padding = padding
         self.color = color
@@ -60,7 +44,7 @@ class Container(Widget):
         child_html = self.child.to_html() if self.child else ''
 
         return f"""
-        <div id="container" style='position: relative; {self.constraints.to_css()} {alignment_str} {padding_str} {margin_str} {width_str} {height_str} {color_str} {decoration_str} {clip_str}'>
+        <div id="{self.widget_id()}" style='position: relative; {self.constraints.to_css()} {alignment_str} {padding_str} {margin_str} {width_str} {height_str} {color_str} {decoration_str} {clip_str}'>
             {child_html}
             <div style='{foregroundDecoration_str} position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;'></div>
         </div>
@@ -93,6 +77,7 @@ class Text(Widget):
 
 class TextButton(Widget):
     def __init__(self, child, onPressed=None, style=None):
+        super().__init__(widget_id=None)
         self.child = child
         self.onPressed = onPressed
         self.style = style or ButtonStyle()
@@ -104,13 +89,14 @@ class TextButton(Widget):
 
     def to_html(self):
         style = self.style.to_css()
-        button_id = f'text_button_{id(self)}'
+        button_id = f'{self.widget_id()}'
         self.api.register_callback(self.onPressedName, self.onPressed)
         return f"<button id='{button_id}' style='{style}' onclick='handleClick(\"{self.onPressedName}\")'>{self.child.to_html()}</button>"
 
 
 class ElevatedButton(Widget):
     def __init__(self, child, onPressed=None, style=None):
+        super().__init__(widget_id=None)
         self.child = child
         self.onPressed = onPressed
         self.style = style or ButtonStyle()
@@ -123,13 +109,14 @@ class ElevatedButton(Widget):
 
     def to_html(self):
         style = self.style.to_css()
-        button_id = f'elevated_button_{id(self)}'
+        button_id = f'{self.widget_id()}'
         self.api.register_callback(self.onPressedName, self.onPressed)
         return f"<button id='{button_id}' style='{style}' onclick='handleClick(\"{self.onPressedName}\")'>{self.child.to_html()}</button>"
 
 
 class IconButton(Widget):
     def __init__(self, child, onPressed=None, style=None):
+        super().__init__(widget_id=None)
         self.child = child
         self.onPressed = onPressed
         self.style = style or ButtonStyle()
@@ -142,7 +129,7 @@ class IconButton(Widget):
 
 
     def to_html(self):
-        button_id = f"icon_button_{id(self)}"
+        button_id = f"{self.widget_id()}"
         style = self.style.to_css()
         child_html = self.child.to_html() if isinstance(self.child, Widget) else self.child
 
@@ -157,6 +144,7 @@ class IconButton(Widget):
 
 class FloatingActionButton(Widget):
     def __init__(self, child=None, onPressed=None, key=None):
+        super().__init__(widget_id=None)
         self.child = child
         self.onPressed = onPressed
         self.key = key
@@ -172,7 +160,7 @@ class FloatingActionButton(Widget):
         onClick = f"onclick='handleClick(\"{self.onPressedName}\")'" if self.onPressed else ""
         
         return f"""
-        <button id='floatingButton' style="position: fixed; bottom: 16px; right: 16px; border-radius: 50%; width: 56px; height: 56px; background-color: #f50057; color: white; border: none; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2);" {onClick}>
+        <button id='{self.widget_id()}' style="position: fixed; bottom: 16px; right: 16px; border-radius: 50%; width: 56px; height: 56px; background-color: #f50057; color: white; border: none; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2);" {onClick}>
             {self.child.to_html() if self.child else ''}
         </button>
         """
@@ -181,7 +169,7 @@ class FloatingActionButton(Widget):
 class Column(Widget):
     def __init__(self, children=[], key=None, mainAxisAlignment=MainAxisAlignment.START, mainAxisSize= MainAxisSize.MAX, crossAxisAlignment=CrossAxisAlignment.CENTER, textDirection=TextDirection.LTR, verticalDirection= VerticalDirection.DOWN, textBaseline=TextBaseline.alphabetic, widget_id=None):
         self.children = children
-        super().__init__(widget_id= 'column')
+        super().__init__(widget_id=None)
         self.key = key
         self.mainAxisAlignment = mainAxisAlignment
         self.mainAxisSize = mainAxisSize
@@ -215,6 +203,7 @@ class Column(Widget):
 
 class Row(Widget):
     def __init__(self, children=[], key=None, mainAxisAlignment=MainAxisAlignment.START, mainAxisSize=MainAxisSize.MAX, crossAxisAlignment=CrossAxisAlignment.CENTER, textDirection=TextDirection.LTR, verticalDirection= VerticalDirection.DOWN, textBaseline = TextBaseline.alphabetic):
+        super().__init__(widget_id=None)
         self.children = children
         self.key = key
         self.mainAxisAlignment = mainAxisAlignment
@@ -243,11 +232,12 @@ class Row(Widget):
         elif self.mainAxisSize == 'max':
             styles += "width: 100%;"
 
-        return f"<div id='row' style='{styles}'>{children_html}</div>"
+        return f"<div id='{self.widget_id()}' style='{styles}'>{children_html}</div>"
         
 
 class Image(Widget):
     def __init__(self, image, width=None, height=None, fit=ImageFit.CONTAIN, alignment='center'):
+        super().__init__(widget_id=None)
         self.image = image
         self.width = width
         self.height = height
@@ -259,7 +249,7 @@ class Image(Widget):
     def to_html(self):
         src = self.image.get_source()
         style = f"object-fit: {self.fit}; width: {self.width}px; height: {self.height}px; display: flex; justify-content: center; align-items: center;"
-        return f"<img id='image' src='{src}' style='{style}' />"
+        return f"<img id='{self.widget_id()}' src='{src}' style='{style}' />"
 
 class AssetImage:
     def __init__(self, file_name):
@@ -279,14 +269,12 @@ class NetworkImage:
 
 class Icon(Widget):
     def __init__(self, icon_name=None, custom_icon=None, size=24, color=None):
+        super().__init__(widget_id=None)
         self.icon_name = icon_name
         self.custom_icon = custom_icon
         self.size = size
         self.color = color
         
-
-
-    
 
 
     def to_html(self):
@@ -296,12 +284,13 @@ class Icon(Widget):
         else:
             # Use a CDN for predefined icons, e.g., FontAwesome
             color = f"color: {self.color};" if self.color != None else ''
-            return f"<i id='icon' class='fa fa-{self.icon_name}' style='font-size: {self.size}px; {color}'></i>"
+            return f"<i id='{self.widget_id()}' class='fa fa-{self.icon_name}' style='font-size: {self.size}px; {color}'></i>"
 
 
 
 class ListView(Widget):
     def __init__(self, children, padding=None, scrollDirection=Axis.VERTICAL, reverse=False, primary=True, physics=ScrollPhysics.ALWAYS_SCROLLABLE, shrinkWrap=False, itemExtent=None, cacheExtent=None, semanticChildCount=None):
+        super().__init__(widget_id=None)
         self.children = children
         self.padding = padding or EdgeInsets.all(0)
         self.scrollDirection = scrollDirection
@@ -337,13 +326,14 @@ class ListView(Widget):
         semantic_child_count_attr = f"aria-setsize='{self.semanticChildCount}'" if self.semanticChildCount else ""
 
         return f"""
-        <div id="listView" style="display: flex; {scroll_direction_style} {reverse_style} {primary_style} {padding_style} {physics_style} {cache_extent_style}; height: 100%; width: 100%;" {semantic_child_count_attr}>
+        <div id="{self.widget_id()}" style="display: flex; {scroll_direction_style} {reverse_style} {primary_style} {padding_style} {physics_style} {cache_extent_style}; height: 100%; width: 100%;" {semantic_child_count_attr}>
             {children_html}
         </div>
         """
 
 class GridView(Widget):
     def __init__(self, children, padding=None, scrollDirection=Axis.VERTICAL, reverse=False, primary=True, physics=ScrollPhysics.ALWAYS_SCROLLABLE, shrinkWrap=False, crossAxisCount=2, mainAxisSpacing=0, crossAxisSpacing=0, childAspectRatio=1.0):
+        super().__init__(widget_id=None)
         self.children = children
         self.padding = padding or EdgeInsets.all(0)
         self.scrollDirection = scrollDirection
@@ -379,7 +369,7 @@ class GridView(Widget):
         children_html = ''.join([f"<div style='flex: 1; aspect-ratio: {self.childAspectRatio};'>{child.to_html()}</div>" for child in self.children])
 
         return f"""
-        <div id="gridView" style="display: flex; {scroll_direction_style} {reverse_style} {primary_style} {padding_style} {physics_style}; height: 100%; width: 100%;">
+        <div id="{self.widget_id()}" style="display: flex; {scroll_direction_style} {reverse_style} {primary_style} {padding_style} {physics_style}; height: 100%; width: 100%;">
             <div style="display: grid; grid-template-columns: {grid_template_columns}; gap: {grid_gap}; width: 100%;">
                 {children_html}
             </div>
@@ -388,6 +378,7 @@ class GridView(Widget):
           
 class Stack(Widget):
     def __init__(self, children, alignment=Alignment.top_left(), textDirection=TextDirection.LTR, fit=StackFit.loose, clipBehavior=ClipBehavior.NONE, overflow=Overflow.VISIBLE, key=None):
+        super().__init__(widget_id=None)
         self.children = children
         self.alignment = alignment
         self.textDirection = textDirection
@@ -415,13 +406,14 @@ class Stack(Widget):
         children_html = ''.join([child.to_html() for child in self.children])
 
         return f"""
-        <div id="stack" style="position: relative; {alignment_style} {text_direction_style} {fit_style} {clip_style} {overflow_style}">
+        <div id="{self.widget_id()}" style="position: relative; {alignment_style} {text_direction_style} {fit_style} {clip_style} {overflow_style}">
             {children_html}
         </div>
         """
         
 class Positioned(Widget):
     def __init__(self, child, top=None, right=None, bottom=None, left=None):
+        super().__init__(widget_id=None)
         self.child = child
         self.top = top
         self.right = right
@@ -439,7 +431,7 @@ class Positioned(Widget):
         left_style = f"left: {self.left}px;" if self.left is not None else ""
 
         return f"""
-        <div id='positioned' style="position: absolute; {top_style} {right_style} {bottom_style} {left_style}">
+        <div id='{self.widget_id()}' style="position: absolute; {top_style} {right_style} {bottom_style} {left_style}">
             {self.child.to_html()}
         </div>
         """
@@ -447,6 +439,7 @@ class Positioned(Widget):
 
 class Expanded(Widget):
     def __init__(self, child, flex=1, key=None):
+        super().__init__(widget_id=None)
         self.child = child
         self.flex = flex
         self.key = key
@@ -457,12 +450,13 @@ class Expanded(Widget):
 
 
     def to_html(self):
-        return f"<div id='expanded' style='flex: {self.flex};'>{self.child.to_html()}</div>"
+        return f"<div id='{self.widget_id()}' style='flex: {self.flex};'>{self.child.to_html()}</div>"
 
 
 
 class Spacer(Widget):
     def __init__(self, flex=1, key=None):
+        super().__init__(widget_id=None)
         self.flex = flex
         self.key = key
 
@@ -472,12 +466,13 @@ class Spacer(Widget):
 
 
     def to_html(self):
-        return f"<div id='spacer' style='flex: {self.flex};'></div>"
+        return f"<div id='{self.widget_id()}' style='flex: {self.flex};'></div>"
         
         
 
 class AppBar(Widget):
     def __init__(self, title=None, actions=None, leading=None, backgroundColor=None, elevation=None, centerTitle=None, titleSpacing=None, pinned=False, bottom=None, shadowColor=Colors.rgba(0,0,0,0.2)):
+        super().__init__(widget_id=None)
         self.title = title
         self.actions = actions or []
         self.leading = leading
@@ -517,7 +512,7 @@ class AppBar(Widget):
         title_spacing = self.titleSpacing if self.titleSpacing else 10
 
         return f"""
-        <header id="appBar" style="{app_bar_style}">
+        <header id="{self.widget_id()}" style="{app_bar_style}">
             <div style="{leading_css}">{leading_html}</div>
             <div style="flex: 1; margin-left: {title_spacing}px;">{title_html}</div>
             <div style="flex: 1; text-align: center;">{center_title}</div>
@@ -543,6 +538,7 @@ class BottomNavigationBar(Widget):
                  showSelectedLabels=True, 
                  showUnselectedLabels=False, 
                  landscapeLayout="centered"):
+        super().__init__(widget_id=None)
         self.items = items
         self.onTap = onTap
         self.currentIndex = currentIndex
@@ -582,14 +578,16 @@ class BottomNavigationBar(Widget):
             items_html += f"<div onclick='handleClickOnTap(\"{self.onTapName}\", {index})' style='{item_style}'>{item_html}</div>"
 
         return f"""
-        <div id="bottomNav" style='height: 60px; background-color: {self.backgroundColor}; box-shadow: 0 -2px 10px rgba(0,0,0,0.2); display: flex; justify-content: center; align-items: center;  position: relative; z-index: 1;'>
+        <div id="{self.widget_id()}" style='height: 60px; background-color: {self.backgroundColor}; box-shadow: 0 -2px 10px rgba(0,0,0,0.2); display: flex; justify-content: center; align-items: center;  position: relative; z-index: 1;'>
             {items_html}
         </div>
         """
 
 
-class BottomNavigationBarItem:
+class BottomNavigationBarItem(Widget):
     def __init__(self, icon, label):
+        
+        super().__init__(widget_id=None)
         self.icon = icon
         self.label = label
 
@@ -609,7 +607,7 @@ class BottomNavigationBarItem:
         label_color = fixedColor if should_color_label else '#aaa'
         label_html = f"<div style='color: {label_color};'>{self.label}</div>" if should_show_label else ''
 
-        return f"<div id='bottomNavItem' style='text-align: center; '>{icon_html}{label_html}</div>"
+        return f"<div id='{self.widget_id()}' style='text-align: center; '>{icon_html}{label_html}</div>"
 
 class Scaffold(Widget):
     def __init__(self, 
@@ -636,6 +634,7 @@ class Scaffold(Widget):
                  persistentFooterAlignment=MainAxisAlignment.CENTER,
                  primary=True,
                  key=None):
+        super().__init__(widget_id=None)
         self.appBar = appBar
         self.body = body
         self.floatingActionButton = floatingActionButton
@@ -668,6 +667,7 @@ class Scaffold(Widget):
     def to_html(self):
         appBar_html = self.appBar.to_html() if self.appBar else ""
         body_html = self.body.to_html() if self.body else ""
+        body_id = self.body._id if self.body else ""
         floating_action_button_html = self.floatingActionButton.to_html() if self.floatingActionButton else ""
         bottom_navigation_bar_html = self.bottomNavigationBar.to_html() if self.bottomNavigationBar else ""
         drawer_html = self.drawer.to_html() if self.drawer else ""
@@ -699,11 +699,11 @@ class Scaffold(Widget):
 
 
         return f"""
-        <div id="scaffold" style="flex: 1; display: flex; flex-direction: column; height: 100vh; {background_color_style}">
+        <div id="{self.widget_id()}" style="flex: 1; display: flex; flex-direction: column; height: 100vh; {background_color_style}">
             {appBar_html}
             <div id="container" style="flex: 1; display: flex; overflow: hidden; position: relative; ">
             {drawer_html}
-            <div id="body" style='flex: 1; overflow-y: auto; padding: 20px; margin-left: {margin_left}; margin-right: {margin_right}; transition: margin-left 0.3s ease;'>
+            <div id="{body_id}" style='flex: 1; overflow-y: auto; padding: 20px; margin-left: {margin_left}; margin-right: {margin_right}; transition: margin-left 0.3s ease;'>
             {body_html}
             </div>
             {end_drawer_html}
@@ -721,9 +721,13 @@ class Scaffold(Widget):
 
 class Body(Widget):
     def __init__(self, child=None):
+        super().__init__(widget_id=None)
         self.child = child
-
-    
+        self.id = self.widget_id()
+        
+    def id(self):
+        print("Body: ", self.widget_id())
+        return self.widget_id()
 
     def to_html(self):
         child_html = self.child.to_html() if self.child else ''
@@ -734,6 +738,7 @@ class Body(Widget):
 
 class Divider(Widget):
     def __init__(self, height=1, margin=EdgeInsets.symmetric(8,0), color=Colors.hex('#ccc'), border=BorderStyle.NONE):
+        super().__init__(widget_id=None)
         self.height = height
         self.margin = margin
         self.color = color
@@ -745,11 +750,12 @@ class Divider(Widget):
 
     def to_html(self):
         return f"""
-        <hr  id="divider" style="height: {self.height}px; background-color: {self.color}; border: {self.border}; margin: {self.margin.to_css()};">
+        <hr  id="{self.widget_id()}" style="height: {self.height}px; background-color: {self.color}; border: {self.border}; margin: {self.margin.to_css()};">
         """
 
 class Drawer(Widget):
     def __init__(self, child, width=250, divider=None, borderRight= BorderSide(width=0.1, style=BorderStyle.SOLID), elevation='', padding=EdgeInsets.all(20), backgroundColor=Colors.color('white')):
+        super().__init__(widget_id=None)
         self.child = child
         self.width = width
         self.padding = padding
@@ -770,7 +776,7 @@ class Drawer(Widget):
         border = self.borderRight.border_to_css() if self.borderRight else ''
 
         return f"""
-        <div id="drawer" style="width: {self.width}px; padding: {self.padding.to_css()}; height: 100%; background: {self.backgroundColor}; box-shadow:{self.elevation}; overflow-y: auto; border-right: {border}; transform: translateX(-{drawer_width}px); transition: transform 0.3s ease;">
+        <div id="{self.widget_id()}" style="width: {self.width}px; padding: {self.padding.to_css()}; height: 100%; background: {self.backgroundColor}; box-shadow:{self.elevation}; overflow-y: auto; border-right: {border}; transform: translateX(-{drawer_width}px); transition: transform 0.3s ease;">
             {self.child.to_html()}{divider}
         </div>
         """
@@ -783,6 +789,7 @@ class Drawer(Widget):
 
 class EndDrawer(Widget):
     def __init__(self, child, width=250, divider=None, borderLeft= BorderSide(width=0.1, style=BorderStyle.SOLID), elevation='', padding=EdgeInsets.all(20), backgroundColor=Colors.color('white')):
+        super().__init__(widget_id=None)
         self.child = child
         self.width = width
         self.padding = padding
@@ -802,7 +809,7 @@ class EndDrawer(Widget):
         end_drawer_width = self.width + self.padding.to_int_horizontal() + self.borderLeft.to_int()
         border = self.borderLeft.border_to_css() if self.borderLeft else ''
         return f"""
-        <div id="endDrawer" style="width: {self.width}px; padding: {self.padding.to_css()}; height: 100%; background: {self.backgroundColor}; overflow-y: auto; box-shadow:{self.elevation}; border-left: {border}; transform: translateX({end_drawer_width}px); transition: transform 0.3s ease;">
+        <div id="{self.widget_id()}" style="width: {self.width}px; padding: {self.padding.to_css()}; height: 100%; background: {self.backgroundColor}; overflow-y: auto; box-shadow:{self.elevation}; border-left: {border}; transform: translateX({end_drawer_width}px); transition: transform 0.3s ease;">
             {self.child.to_html()}{divider}
         </div>
         """
@@ -815,6 +822,7 @@ class EndDrawer(Widget):
 
 class BottomSheet(Widget):
     def __init__(self, child, height=300, backgroundColor=Colors.color('white'), elevation='', padding=EdgeInsets.all(20), enableDrag=True):
+        super().__init__(widget_id=None)
         self.child = child
         self.height = height
         self.backgroundColor = backgroundColor
@@ -831,7 +839,7 @@ class BottomSheet(Widget):
     def to_html(self):
         drag_behavior = 'cursor: grab;' if self.enableDrag else ''
         return f"""
-        <div id="bottomSheet" style="position: fixed; left: 0; bottom: 0; width: 100%; height: {self.height}px; padding: {self.padding.to_css()}; background-color: {self.backgroundColor}; box-shadow:{self.elevation}; transform: translateY(100%); transition: transform 0.3s ease; {drag_behavior}">
+        <div id="{self.widget_id()}" style="position: fixed; left: 0; bottom: 0; width: 100%; height: {self.height}px; padding: {self.padding.to_css()}; background-color: {self.backgroundColor}; box-shadow:{self.elevation}; transform: translateY(100%); transition: transform 0.3s ease; {drag_behavior}">
             {self.child.to_html()}
         </div>
         """
@@ -839,6 +847,7 @@ class BottomSheet(Widget):
 
 class Center(Widget):
     def __init__(self, child):
+        super().__init__(widget_id=None)
         self.child = child
 
 
@@ -848,7 +857,7 @@ class Center(Widget):
 
     def to_html(self):
         return f"""
-        <div id="center" style="display: flex; justify-content: center; align-items: center; height: 100%;">
+        <div id="{self.widget_id()}" style="display: flex; justify-content: center; align-items: center; height: 100%;">
             {self.child.to_html()}
         </div>
         """
@@ -857,6 +866,7 @@ class Center(Widget):
 
 class ListTile(Widget):
     def __init__(self, leading=None, title=None, subtitle=None, onTap=None):
+        super().__init__(widget_id=None)
         self.leading = leading
         self.title = title
         self.subtitle = subtitle
@@ -879,7 +889,7 @@ class ListTile(Widget):
         onClick = f'onclick="handleClick(\'{self.onTapName}\')"' if self.onTap else ""
 
         return f"""
-        <div id="listTile" class="list-tile" style="display: flex; align-items: center; padding: 10px; cursor: pointer;" {onClick}>
+        <div id="{self.widget_id()}" class="list-tile" style="display: flex; align-items: center; padding: 10px; cursor: pointer;" {onClick}>
             <div style="margin-right: 10px;">{leading_html}</div>
             <div>
                 <div>{title_html}</div>
@@ -893,6 +903,7 @@ class ListTile(Widget):
 
 class SnackBar(Widget):
     def __init__(self, content, action=None, duration=3000, backgroundColor=Colors.color('grey'), padding=EdgeInsets.symmetric(horizontal=24, vertical=16)):
+        super().__init__(widget_id=None)
         self.content = content
         self.action = action
         self.duration = duration
@@ -909,7 +920,7 @@ class SnackBar(Widget):
         action_html = self.action.to_html() if self.action else ""
         display_style = "flex" if self.is_visible else "none"
         return f"""
-        <div id="snackBar" style="display: {display_style}; position: fixed; bottom: 0; left: 0; width: calc(100% - 48px); padding: {self.padding.to_css()}; background-color: {self.backgroundColor}; box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3); z-index: 1000; justify-content: space-between; align-items: center;">
+        <div id="{self.widget_id()}" style="display: {display_style}; position: fixed; bottom: 0; left: 0; width: calc(100% - 48px); padding: {self.padding.to_css()}; background-color: {self.backgroundColor}; box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3); z-index: 1000; justify-content: space-between; align-items: center;">
             <div>{self.content.to_html()}</div>
             {action_html}
         </div>
@@ -918,6 +929,7 @@ class SnackBar(Widget):
 
 class SnackBarAction(Widget):
     def __init__(self, label, onPressed, textColor=Colors.color('blue')):
+        super().__init__(widget_id=None)
         self.label = label
         self.onPressed = onPressed
         self.textColor = textColor
@@ -933,7 +945,7 @@ class SnackBarAction(Widget):
         self.api.register_callback(self.onPressedName, self.onPressed)
 
         return f"""
-        <button id="snackBarAction" onclick="handleClick(\'{self.onPressedName}\')" style="background: none; border: none; color: {self.textColor}; font-size: 14px; cursor: pointer;">
+        <button id="{self.widget_id()}" onclick="handleClick(\'{self.onPressedName}\')" style="background: none; border: none; color: {self.textColor}; font-size: 14px; cursor: pointer;">
             {self.label}
         </button>
         """

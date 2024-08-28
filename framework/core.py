@@ -11,6 +11,7 @@ from .api import Api
 from .config import Config
 from .server import AssetServer
 from .base import Widget
+from .state import StatefulWidget
 import weakref
 
 
@@ -42,14 +43,18 @@ class Framework:
             raise Exception("This class is a singleton!")
         Framework._instance = self
         Widget.set_framework(self)  # Set the framework in Widget
+        StatefulWidget.set_framework(self)
         self.widgets = []
 
     def register_widget(self, widget):
-        self.widget_registry[widget.widget_id()] = widget
-        print('Widget registry: ', self.widget_registry)
+        def register_widget(self, widget):
+            widget_id = widget.widget_id()
+        if widget_id not in self.widget_registry:
+            self.widget_registry[widget_id] = widget
 
     def get_widget(self, widget_id):
         return self.widget_registry.get(widget_id)
+  
 
     def set_root(self, widget):
         self.root_widget = widget
@@ -186,10 +191,28 @@ class Framework:
             script = f'document.body.innerHTML = `{html_content}`;'
             self.window.evaluate_js(script)
 
-    def update_widget(self, widget):
+    def update_widget_dub(self, widget_id, html_content):
+        # Update the widget's HTML representation based on its ID
+        if widget_id in self.widget_registry:
+            widget = self.widget_registry[widget_id]
+            widget._update_html(html_content)
+            print(widget_id)
+
+    def update_widget(self, widget_id, html_content):
         if self.window:
-            html_widget = widget.to_html()
-            widget_id = widget.widget_id()
-            print(widget, widget_id, html_widget)
-            script = f'document.getElementById("{widget_id}").innerHTML = {html_widget};'
-            self.window.evaluate_js(script)
+            html_widget = html_content
+            #widget_id = widget.widget_id()
+            print(html_widget)
+            if widget_id in self.widget_registry:
+                
+                #widget = self.widget_registry[widget_id]
+                script = f'''
+                            if (document.getElementById("{widget_id}")) {{
+                                document.getElementById("{widget_id}").innerHTML = `{html_content}`;
+                            }} else {{
+                                console.log("Element with ID {widget_id} not found.");
+                            }}
+                            '''
+                self.window.evaluate_js(script)
+            else:
+                print('Widget Not In Registry')

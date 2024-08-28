@@ -128,7 +128,9 @@ class MyApp:
             ],
             ) if self.currentIndex == 0 else None,
             
-            body=body_content,  # Use the selected content
+            body=Body(
+                child=body_content,
+                ),  # Use the selected content
             drawer= drawer,
             endDrawer= end_drawer,
             bottomNavigationBar=BottomNavigationBar(

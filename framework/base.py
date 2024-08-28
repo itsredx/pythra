@@ -10,10 +10,17 @@ class Widget:
         cls._framework_ref = weakref.ref(framework)
 
     def __init__(self, widget_id=None):
-        self._id = str(uuid.uuid4()) if widget_id is None else widget_id
         framework = self._framework_ref()
         if framework:
-            framework.register_widget(self)
+            # Check if the widget ID already exists in the registry
+            if widget_id and widget_id in framework.widget_registry:
+                self._id = widget_id
+            else:
+                # Generate a new ID if not provided or not in the registry
+                self._id = str(uuid.uuid4())
+                framework.register_widget(self)
+        else:
+            self._id = str(uuid.uuid4())
 
     def widget_id(self):
         return self._id
