@@ -12,9 +12,10 @@ class CounterState(State):
 
     def increment(self):
         self.count += 1
+        print(self.count)
         self.setState()
 
-    def build(self):
+    def create_widget(self):
         return Column(
             children=[
                 Text(f'Count: {self.count}'),
@@ -46,7 +47,7 @@ class MyApp:
             ),
         )
         self.framework.set_root(scaffold)
-        print('First ID:', self.counter_widget.widget_id(), self.counter_widget.to_html())
+        #print('Debug print from MyApp(){','First ID:', self.counter_widget.widget_id(),'First HTML:', self.counter_widget.to_html(),'}')
 
     def run(self):
         self.update_ui()

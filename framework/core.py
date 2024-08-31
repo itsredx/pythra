@@ -1,4 +1,5 @@
 # framework/core.py
+from .id_manager import IDManager
 import importlib
 import time
 import threading
@@ -38,7 +39,8 @@ class Framework:
         self.snack_bar = None
         self.asset_server = AssetServer(directory='assets', port=8000)
         self.asset_server.start()
-        self.widget_registry = {}
+        self.id_manager = IDManager()  # Initialize IDManager
+        self.widget_registry = {} # Initialize the widget registry
         if Framework._instance is not None:
             raise Exception("This class is a singleton!")
         Framework._instance = self
@@ -47,10 +49,11 @@ class Framework:
         self.widgets = []
 
     def register_widget(self, widget):
-        def register_widget(self, widget):
-            widget_id = widget.widget_id()
-        if widget_id not in self.widget_registry:
-            self.widget_registry[widget_id] = widget
+        #widget_id = self.id_manager.generate_id()
+        #widget.set_widget_id(widget_id)  # Ensure the widget ID is set
+        widget_id = widget.widget_id()
+        self.widget_registry[widget_id] = widget
+        #return widget_id
 
     def get_widget(self, widget_id):
         return self.widget_registry.get(widget_id)
@@ -67,15 +70,17 @@ class Framework:
             self.body = widget.body
 
         
-        #.collect_callbacks(widget)       
+        #self.collect_callbacks(widget)       
         if self.window:
-            self.update_content()
+            pass
+            #self.update_content()
 
     def run(self, title):
         if not self.root_widget:
             raise ValueError("Root widget not set. Use set_root() to define the root widget.")
         
         html_content = self.root_widget.to_html()
+        print('From core.py in Framework.run() {HTML From First Run:',html_content, '}')
         html_file = 'web/index.html'
         os.makedirs('web', exist_ok=True)
 
@@ -215,4 +220,4 @@ class Framework:
                             '''
                 self.window.evaluate_js(script)
             else:
-                print('Widget Not In Registry')
+                print('Widget With ID: {widget_id} Not In Registry')

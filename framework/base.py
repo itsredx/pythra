@@ -1,5 +1,4 @@
 # base.py
-import uuid
 import weakref
 
 class Widget:
@@ -12,15 +11,14 @@ class Widget:
     def __init__(self, widget_id=None):
         framework = self._framework_ref()
         if framework:
-            # Check if the widget ID already exists in the registry
+            # Use the framework's IDManager to generate or validate the widget ID
             if widget_id and widget_id in framework.widget_registry:
                 self._id = widget_id
             else:
-                # Generate a new ID if not provided or not in the registry
-                self._id = str(uuid.uuid4())
-                framework.register_widget(self)
+                self._id = framework.id_manager.generate_id()
+                framework.register_widget(self)  # Register the widget with the framework
         else:
-            self._id = str(uuid.uuid4())
+            self._id = None  # In case the framework is not set, set ID to None
 
     def widget_id(self):
         return self._id
