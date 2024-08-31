@@ -27,4 +27,44 @@ To get started with Pythra, you can clone the repository and install the necessa
 git clone https://github.com/yourusername/pythra.git
 cd pythra
 pip install -r requirements.txt
+```
+
+## Basic Usage
+
+Here’s a quick example to get you started with Pythra:
+
+```
+# main.py
+
+from framework.core import Framework
+from framework.widgets import *
+from framework.styles import *
+from framework.state import StatefulWidget, State
+
+class CounterApp(StatefulWidget):
+    def createState(self):
+        return CounterAppState()
+
+class CounterAppState(State):
+    def __init__(self):
+        super().__init__()
+        self.count = 0
+
+    def create_widget(self):
+        return Scaffold(
+            body=Text(f'Counter: {self.count}'),
+            floatingActionButton=ElevatedButton(
+                text="Increment",
+                onPressed=self.increment_count
+            )
+        )
+
+    def increment_count(self):
+        self.count += 1
+        self.setState()
+
+if __name__ == '__main__':
+    app = PythraApp(root_widget=CounterApp())
+    app.run()
+```
 
