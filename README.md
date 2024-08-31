@@ -1,6 +1,6 @@
 # Pythra
 
-![Pythra Logo](https://link-to-your-logo-image)  <!-- Add a link to your logo image -->
+![Pythra Logo](https://img-cdn.pixlr.com/image-generator/history/65bb506dcb310754719cf81f/ede935de-1138-4f66-8ed7-44bd16efc709/medium.webp)  <!-- Add a link to your logo image -->
 
 Pythra is a powerful and flexible GUI framework designed to bring the familiar and intuitive experience of Flutter to Python. With Pythra, developers can create beautiful, responsive desktop applications using a similar approach to Flutter, but with the full power and simplicity of Python.
 
