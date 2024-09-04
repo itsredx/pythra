@@ -99,7 +99,7 @@ class Framework:
             """)
 
         self.window = webview.create_window(title, html_file, js_api=self.api)
-        webview.start(debug=True)
+        webview.start()
         
 
     def collect_callbacks(self, widget):
