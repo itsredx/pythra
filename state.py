@@ -1,4 +1,4 @@
-# main.py state test
+# main.py state v--01 test
 
 from framework.core import Framework
 from framework.widgets import *
@@ -47,7 +47,7 @@ class MyApp:
     def update_ui(self):
         scaffold = Scaffold(
             appBar=AppBar(
-                title=Text('Counter Example'),
+                title=Text('Counter App'),
             ),
             body=Body(
                 child=self.counter_widget,  # Using the CounterWidget
