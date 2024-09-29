@@ -1,4 +1,4 @@
-# main.py
+# main.py needs refactoring
 
 from framework.core import Framework
 from framework.widgets import *
