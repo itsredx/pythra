@@ -21,9 +21,11 @@ class State:
             self._cached_widget = self.create_widget()
             
             self.update_existing_widget()
+            self.framework.delete_widget(self._original_widget_id)
+            print(self.framework.get_size())
             self._original_widget_id = self._cached_widget.widget_id()
-            print('setState: {',self.create_widget().to_html(), '}')
-            print('setState count: ',self.count)
+            #print('setState: {',self.create_widget().to_html(), '}')
+            #print('setState count: ',self.count)
             #widget.update_content(self.build())
         else:
             raise ValueError("The widget reference is invalid")
@@ -49,8 +51,8 @@ class State:
     def update_existing_widget(self):
         widget = self.framework.get_widget(self._widget_id)
         updated_html = self._cached_widget.to_html()
-        print('Original Widget ID:', self._original_widget_id)
-        print('From state.py State.update_existing_widget(){',self._cached_widget.widget_id(),":" ,updated_html,'}')
+        #print('Original Widget ID:', self._original_widget_id)
+        #print('From state.py State.update_existing_widget(){',self._cached_widget.widget_id(),":" ,updated_html,'}')
         self.framework.update_widget(self._original_widget_id, updated_html)
 
 

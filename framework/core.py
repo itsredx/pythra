@@ -13,6 +13,7 @@ from .config import Config
 from .server import AssetServer
 from .base import Widget
 from .state import StatefulWidget
+from .pyx.widget_registry import WidgetRegistry
 import weakref
 
 
@@ -47,16 +48,27 @@ class Framework:
         Widget.set_framework(self)  # Set the framework in Widget
         StatefulWidget.set_framework(self)
         self.widgets = []
+        self.registry = WidgetRegistry()
 
     def register_widget(self, widget):
-        #widget_id = self.id_manager.generate_id()
-        #widget.set_widget_id(widget_id)  # Ensure the widget ID is set
         widget_id = widget.widget_id()
-        self.widget_registry[widget_id] = widget
-        #return widget_id
+        #self.widget_registry[widget_id] = widget
+        self.registry.add_widget(widget_id, widget)
 
     def get_widget(self, widget_id):
-        return self.widget_registry.get(widget_id)
+        return self.registry.get_widget(widget_id)
+
+    def get_all_widgets(self,):
+        return self.registry.get_all_widgets()
+
+    def update_widget(self, widget_id, widget):
+        self.registry.update_widget(widget_id, widget)
+
+    def delete_widget(self, widget_id):
+        self.registry.delete_widget(widget_id)
+
+    def get_size(self):
+        return self.registry.get_size()
   
 
     def set_root(self, widget):
@@ -198,8 +210,8 @@ class Framework:
 
     def update_widget_dub(self, widget_id, html_content):
         # Update the widget's HTML representation based on its ID
-        if widget_id in self.widget_registry:
-            widget = self.widget_registry[widget_id]
+        if widget_id in self.get_all_widgets():
+            widget = self.get_widget(widget_id=widget_id)
             widget._update_html(html_content)
             print(widget_id)
 
@@ -207,8 +219,8 @@ class Framework:
         if self.window:
             html_widget = html_content
             #widget_id = widget.widget_id()
-            print(html_widget)
-            if widget_id in self.widget_registry:
+            print(self.get_all_widgets())
+            if widget_id in self.get_all_widgets():
                 
                 #widget = self.widget_registry[widget_id]
                 script = f'''

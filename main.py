@@ -45,10 +45,10 @@ class MyApp:
                 children=[
                     Text('Welcome to the Home Page!'),
                     IconButton(
-                        child=Icon('plus'),
+                        icon=Icon('plus'),
                         onPressed= self.show_bottom_sheet),
                     IconButton(
-                        child=Icon('flask'),
+                        icon=Icon('flask'),
                         onPressed= self.show_snack_bar),
                 ]
             ),
@@ -76,7 +76,7 @@ class MyApp:
             children=[
                 Text('Welcome to the Home Page!'),
                 IconButton(
-                    child=Icon('plus'),
+                    icon=Icon('plus'),
                     onPressed= self.show_bottom_sheet
                     ),
             ]
@@ -119,11 +119,11 @@ class MyApp:
                 elevation=2,
                 shadowColor=Colors.rgba(0,0,0,0.2), 
                 leading=IconButton(
-                    child=Icon('bars'),
+                    icon=Icon('bars'),
                     onPressed= self.toggle_drawer),
                 actions=[
                 IconButton(
-                    child=Icon('bars'),
+                    icon=Icon('bars'),
                     onPressed= self.toggle_end_drawer),
             ],
             ) if self.currentIndex == 0 else None,
@@ -156,7 +156,7 @@ class MyApp:
                     children=[
                         Text("This is a BottomSheet"),
                         IconButton(
-                            child=Icon('minus'),
+                            icon=Icon('minus'),
                             onPressed= self.hide_bottom_sheet
                             ),
                     ]

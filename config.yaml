@@ -1,2 +1,8 @@
 assets_dir: "assets"
 
+font_dir: "fonts"
+
+
+dependencies: 
+  "yaml"
+

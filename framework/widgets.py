@@ -115,9 +115,9 @@ class ElevatedButton(Widget):
 
 
 class IconButton(Widget):
-    def __init__(self, child, onPressed=None, style=None):
+    def __init__(self, icon, onPressed=None, style=None):
         super().__init__(widget_id=None)
-        self.child = child
+        self.child = icon
         self.onPressed = onPressed
         self.style = style or ButtonStyle()
         self.api = Api()
