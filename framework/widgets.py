@@ -303,7 +303,7 @@ class Icon(Widget):
         self.color = color
         
     def get_children(self):
-        return []  # SizedBox doesn't have children, so return an empty list
+        return []  # Icon doesn't have children, so return an empty list
 
     def remove_all_children(self):
         pass
@@ -779,18 +779,27 @@ class Scaffold(Widget):
         if body_html != '':
             if drawer_html != '':
                 drawer_width = self.drawer.width + self.drawer.padding.to_int_horizontal() + self.drawer.borderRight.to_int()
-                
-                margin_left = f'-{drawer_width}px'
-                
+                if self.drawer.is_open:
+                    margin_left = '0px'
+                else:
+                    margin_left = f'-{drawer_width}px'
+
             else:
                 margin_left = '0px'
+                print("Drawer is None")
 
             if end_drawer_html != '':
                 end_drawer_width = self.endDrawer.width + self.endDrawer.padding.to_int_horizontal() + self.endDrawer.borderLeft.to_int()
-                margin_right = f'-{end_drawer_width}px'
-        
+                
+                if self.endDrawer.is_open:
+                    margin_right = '0px'
+                else:
+                    margin_right = f'-{end_drawer_width}px'
+
             else:
                 margin_right = '0px'
+
+        
 
 
         return f"""
@@ -856,16 +865,29 @@ class Divider(Widget):
         """
 
 class Drawer(Widget):
+
+    _instance = None  # Class-level attribute to store the single instance
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            # If an instance doesn't exist, create one
+            cls._instance = super(Drawer, cls).__new__(cls)
+        return cls._instance  # Return the singleton instance
+
     def __init__(self, child, width=250, divider=None, borderRight= BorderSide(width=0.1, style=BorderStyle.SOLID), elevation='', padding=EdgeInsets.all(20), backgroundColor=Colors.color('white')):
-        super().__init__(widget_id=None)
-        self.child = child
-        self.width = width
-        self.padding = padding
-        self.borderRight = borderRight
-        self.elevation = elevation
-        self.divider = divider
-        self.backgroundColor = backgroundColor
-        self.is_open = False
+        # Only initialize the instance once
+        if not hasattr(self, 'initialized'):
+            super().__init__(widget_id=None)
+            self.child = child
+            self.width = width
+            self.padding = padding
+            self.borderRight = borderRight
+            self.elevation = elevation
+            self.divider = divider
+            self.backgroundColor = backgroundColor
+            self.is_open = False
+            self.add_child(self.child) if self.child else None
+            self.initialized = True  # Mark the instance as initialized
 
 
         self.add_child(self.child) if self.child else None# Register the child widget with the framework
@@ -873,33 +895,48 @@ class Drawer(Widget):
 
 
     def to_html(self):
+        
         divider = self.divider.to_html() if self.divider else ''
         drawer_width = self.width + self.padding.to_int_horizontal() + self.borderRight.to_int()
         border = self.borderRight.border_to_css() if self.borderRight else ''
+        drawer_width = '0px' if self.is_open else f'-{drawer_width}' 
+        #print(drawer_width, self.is_open)
 
         return f"""
-        <div id="{self.widget_id()}" style="width: {self.width}px; padding: {self.padding.to_css()}; height: 100%; background: {self.backgroundColor}; box-shadow:{self.elevation}; overflow-y: auto; border-right: {border}; transform: translateX(-{drawer_width}px); transition: transform 0.3s ease;">
+        <div id="{self.widget_id()}" style="width: {self.width}px; padding: {self.padding.to_css()}; height: 100%; background: {self.backgroundColor}; box-shadow:{self.elevation}; overflow-y: auto; border-right: {border}; transform: translateX({drawer_width}px); transition: transform 0.3s ease;">
             {self.child.to_html()}{divider}
         </div>
         """
 
-    def toggle(self):
-        self.is_open = not self.is_open
+    def toggle(self, bool=False):
+        self.is_open = bool
+
         return self.is_open
 
 
 
 class EndDrawer(Widget):
+    _instance = None  # Class-level attribute to store the single instance
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            # If an instance doesn't exist, create one
+            cls._instance = super(EndDrawer, cls).__new__(cls)
+        return cls._instance  # Return the singleton instance
+
     def __init__(self, child, width=250, divider=None, borderLeft= BorderSide(width=0.1, style=BorderStyle.SOLID), elevation='', padding=EdgeInsets.all(20), backgroundColor=Colors.color('white')):
-        super().__init__(widget_id=None)
-        self.child = child
-        self.width = width
-        self.padding = padding
-        self.borderLeft = borderLeft
-        self.elevation = elevation
-        self.divider = divider
-        self.backgroundColor = backgroundColor
-        self.is_open = False
+        # Only initialize the instance once
+        if not hasattr(self, 'initialized'):
+            super().__init__(widget_id=None)
+            self.child = child
+            self.width = width
+            self.padding = padding
+            self.borderLeft = borderLeft
+            self.elevation = elevation
+            self.divider = divider
+            self.backgroundColor = backgroundColor
+            self.is_open = False
+            self.initialized = True  # Mark the instance as initialized
 
 
         self.add_child(self.child) if self.child else None# Register the child widget with the framework
@@ -909,6 +946,7 @@ class EndDrawer(Widget):
     def to_html(self):
         divider = self.divider.to_html() if self.divider else ''
         end_drawer_width = self.width + self.padding.to_int_horizontal() + self.borderLeft.to_int()
+        end_drawer_width = '0px' if self.is_open else end_drawer_width
         border = self.borderLeft.border_to_css() if self.borderLeft else ''
         return f"""
         <div id="{self.widget_id()}" style="width: {self.width}px; padding: {self.padding.to_css()}; height: 100%; background: {self.backgroundColor}; overflow-y: auto; box-shadow:{self.elevation}; border-left: {border}; transform: translateX({end_drawer_width}px); transition: transform 0.3s ease;">
@@ -916,36 +954,54 @@ class EndDrawer(Widget):
         </div>
         """
 
-    def toggle(self):
-        self.is_open = not self.is_open
+    def toggle(self, bool=False):
+        self.is_open = bool
+        
         return self.is_open
 
 
 
 class BottomSheet(Widget):
+    _instance = None  # Class-level attribute to store the single instance
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            # If an instance doesn't exist, create one
+            cls._instance = super(BottomSheet, cls).__new__(cls)
+        return cls._instance  # Return the singleton instance
+        
     def __init__(self, child, height=300, backgroundColor=Colors.color('white'), elevation='', padding=EdgeInsets.all(20), enableDrag=True):
-        super().__init__(widget_id=None)
-        self.child = child
-        self.height = height
-        self.backgroundColor = backgroundColor
-        self.elevation = elevation
-        self.padding = padding
-        self.enableDrag = enableDrag
-        self.is_open = False
+         # Only initialize the instance once
+        if not hasattr(self, 'initialized'):
+            super().__init__(widget_id=None)
+            self.child = child
+            self.height = height
+            self.backgroundColor = backgroundColor
+            self.elevation = elevation
+            self.padding = padding
+            self.enableDrag = enableDrag
+            self.is_open = False
+            self.initialized = True  # Mark the instance as initialized
 
 
 
-        self.add_child(self.child) if self.child else None# Register the child widget with the framework
+            self.add_child(self.child) if self.child else None# Register the child widget with the framework
 
 
     def to_html(self):
         drag_behavior = 'cursor: grab;' if self.enableDrag else ''
+        translate = '0px' if self.is_open else '100%'
         return f"""
-        <div id="{self.widget_id()}" style="position: fixed; left: 0; bottom: 0; width: 100%; height: {self.height}px; padding: {self.padding.to_css()}; background-color: {self.backgroundColor}; box-shadow:{self.elevation}; transform: translateY(100%); transition: transform 0.3s ease; {drag_behavior}">
+        <div id="{self.widget_id()}" style="position: fixed; left: 0; bottom: 0; z-index: 2; width: 100%; height: {self.height}px; padding: {self.padding.to_css()}; background-color: {self.backgroundColor}; box-shadow:{self.elevation}; transform: translateY({translate}); transition: transform 0.3s ease; {drag_behavior}">
             {self.child.to_html()}
         </div>
         """
 
+
+    def toggle(self, bool=False):
+        self.is_open = bool
+        
+        return self.is_open
 
 class Center(Widget):
     def __init__(self, child):
@@ -1010,27 +1066,39 @@ class ListTile(Widget):
 
 
 class SnackBar(Widget):
+    _instance = None  # Class-level attribute to store the single instance
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            # If an instance doesn't exist, create one
+            cls._instance = super(SnackBar, cls).__new__(cls)
+        return cls._instance  # Return the singleton instance
+
+
     def __init__(self, content, action=None, duration=3000, backgroundColor=Colors.color('grey'), padding=EdgeInsets.symmetric(horizontal=24, vertical=16)):
-        super().__init__(widget_id=None)
-        self.content = content
-        self.action = action
-        self.duration = duration
-        self.backgroundColor = backgroundColor
-        self.padding = padding
-        self.is_visible = False
+         # Only initialize the instance once
+        if not hasattr(self, 'initialized'):    
+            super().__init__(widget_id=None)
+            self.content = content
+            self.action = action
+            self.duration = duration
+            self.backgroundColor = backgroundColor
+            self.padding = padding
+            self.is_open = False
+            self.initialized = True  # Mark the instance as initialized
 
 
-        children = [
-            self.content,
-            self.action,
-        ]
-    
-        for child in children:
-            self.add_child(child) if child else None# Register the child widget with the framework
+            children = [
+                self.content,
+                self.action,
+            ]
+        
+            for child in children:
+                self.add_child(child) if child else None# Register the child widget with the framework
 
     def to_html(self):
         action_html = self.action.to_html() if self.action else ""
-        display_style = "flex" if self.is_visible else "none"
+        display_style = "flex" if self.is_open else "none"
         return f"""
         <div id="{self.widget_id()}" style="display: {display_style}; position: fixed; bottom: 0; left: 0; width: calc(100% - 48px); padding: {self.padding.to_css()}; background-color: {self.backgroundColor}; box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3); z-index: 1000; justify-content: space-between; align-items: center;">
             <div>{self.content.to_html()}</div>
@@ -1039,17 +1107,33 @@ class SnackBar(Widget):
         """
 
 
+    def toggle(self, bool=False):
+        self.is_open = bool
+        
+        return self.is_open
+
 class SnackBarAction(Widget):
+    _instance = None  # Class-level attribute to store the single instance
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            # If an instance doesn't exist, create one
+            cls._instance = super(SnackBarAction, cls).__new__(cls)
+        return cls._instance  # Return the singleton instance
+
+
     def __init__(self, label, onPressed, textColor=Colors.color('blue')):
-        super().__init__(widget_id=None)
-        self.label = label
-        self.onPressed = onPressed
-        self.textColor = textColor
+        # Only initialize the instance once
+        if not hasattr(self, 'initialized'): 
+            super().__init__(widget_id=None)
+            self.label = label
+            self.onPressed = onPressed
+            self.textColor = textColor
 
-        self.api = Api()
-        self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
+            self.api = Api()
+            self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
 
-        self.add_child(self.label) if self.label else None
+            self.add_child(self.label) if self.label else None
 
     
 
@@ -1058,6 +1142,6 @@ class SnackBarAction(Widget):
 
         return f"""
         <button id="{self.widget_id()}" onclick="handleClick(\'{self.onPressedName}\')" style="background: none; border: none; color: {self.textColor}; font-size: 14px; cursor: pointer;">
-            {self.label}
+            {self.label.to_html()}
         </button>
         """

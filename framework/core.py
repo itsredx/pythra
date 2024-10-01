@@ -155,10 +155,14 @@ class Framework:
             self.window.evaluate_js(script_1, script_2)
     
 
+    
+
     def toggle_drawer(self):
         if self.drawer:
-            is_open = self.drawer.toggle()
-            drawer_width = self.drawer.width + self.drawer.padding.to_int_horizontal() + self.drawer.borderRight.to_int()
+            self.drawer().toggle_true()
+            print(self.drawer.is_open)
+            #is_open = self.drawer.toggle()
+            """drawer_width = self.drawer.width + self.drawer.padding.to_int_horizontal() + self.drawer.borderRight.to_int()
             drawer_transform = 'translateX(0)' if is_open else f'translateX(-{drawer_width}px)'
             body_width = f'calc(100% - {drawer_width}px)' if is_open else '100%'
             margin_left = '' if is_open else f'-{drawer_width}px' 
@@ -171,7 +175,7 @@ class Framework:
             self.window.evaluate_js(script_1 + script_2 + script_3 + script1_4)
             
             #script1_2 = f'document.getElementById("body").style.paddingLeft = "{scaffold_position}";'
-            
+            """
     def toggle_end_drawer(self):
         if self.end_drawer:
             is_open = self.end_drawer.toggle()
@@ -249,7 +253,7 @@ class Framework:
                 #widget = self.widget_registry[widget_id]
                 script = f'''
                             if (document.getElementById("{widget_id}")) {{
-                                document.getElementById("{widget_id}").innerHTML = `{html_content}`;
+                                document.getElementById("{widget_id}").outerHTML = `{html_content}`;
                             }} else {{
                                 console.log("Element with ID {widget_id} not found.");
                             }}

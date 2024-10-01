@@ -1,6 +1,9 @@
 # framework/state.py
 from .base import Widget
 import weakref
+import time
+import threading
+import asyncio
 
 class State:
     def __init__(self):
@@ -54,6 +57,46 @@ class State:
         #print('Original Widget ID:', self._original_widget_id)
         #print('From state.py State.update_existing_widget(){',self._cached_widget.widget_id(),":" ,updated_html,'}')
         self.framework.update_widget(self._original_widget_id, updated_html)
+
+
+    def openDrawer(self):
+        self.framework.root_widget.drawer.toggle(True)
+        
+    def closeDrawer(self):
+        self.framework.root_widget.drawer.toggle(False)
+    
+    def openEndDrawer(self):
+        self.framework.root_widget.endDrawer.toggle(True)
+        
+    def closeEndDrawer(self):
+        self.framework.root_widget.endDrawer.toggle(False)
+
+    def openBottomSheet(self):
+        self.framework.root_widget.bottomSheet.toggle(True)
+
+    def closeBottomSheet(self):
+        self.framework.root_widget.bottomSheet.toggle(False)
+
+    def openSnackBar(self):
+        self.framework.root_widget.snackBar.toggle(True)
+
+        # Start a thread to hide the SnackBar after the specified duration
+        threading.Thread(target=self._auto_hide_snack_bar, daemon=True).start()
+        
+    def _auto_hide_snack_bar(self):
+        
+        if self.framework.root_widget.snackBar:
+            duration = self.framework.root_widget.snackBar.duration
+            time.sleep(duration)
+            self.closeSnackBar()
+            self.setState()
+            
+        else:
+            print(None)
+
+    def closeSnackBar(self):
+        self.framework.root_widget.snackBar.toggle(False)
+
 
 
 class StatefulWidget(Widget):

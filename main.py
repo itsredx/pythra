@@ -21,28 +21,36 @@ class MyAppState(State):
         self.currentIndex = index
         self.setState()  # Update the UI when the tab is selected
 
-    def toggle_drawer(self):
-        self.drawer_visible = not self.drawer_visible
+    def open_drawer(self):
+        self.openDrawer()
         self.setState()
 
-    def toggle_end_drawer(self):
-        self.end_drawer_visible = not self.end_drawer_visible
+    def open_end_drawer(self):
+        self.openEndDrawer()
         self.setState()
 
-    def show_bottom_sheet(self):
-        self.bottom_sheet_visible = True
+    def close_drawer(self):
+        self.closeDrawer()
+        self.setState()
+
+    def close_end_drawer(self):
+        self.closeEndDrawer()
+        self.setState()
+
+    def open_bottom_sheet(self):
+        self.openBottomSheet()
         self.setState()
 
     def hide_bottom_sheet(self):
-        self.bottom_sheet_visible = False
+        self.closeBottomSheet()
         self.setState()
 
     def show_snack_bar(self):
-        self.snack_bar_visible = True
+        self.openSnackBar()
         self.setState()
 
     def hide_snack_bar(self):
-        self.snack_bar_visible = False
+        self.closeSnackBar()
         self.setState()
 
     def undo(self):
@@ -58,7 +66,7 @@ class MyAppState(State):
                         Text('Welcome to the Home Page!'),
                         IconButton(
                             icon=Icon('plus'),
-                            onPressed=self.show_bottom_sheet
+                            onPressed=self.open_bottom_sheet
                         ),
                         IconButton(
                             icon=Icon('flask'),
@@ -90,20 +98,38 @@ class MyAppState(State):
         body_content = content[self.currentIndex]
 
         drawer = Drawer(
-            child=Text('Hello'),
+            child=Row(
+                mainAxisAlignment= MainAxisAlignment.SPACE_BETWEEN,
+                children=[
+                    IconButton(
+                        icon=Icon('close'),
+                        onPressed=self.close_drawer
+                    ),
+                    Text('Hello'),
+                ]
+            ),
             width=300,
             divider=Divider(
                 margin=EdgeInsets.symmetric(8, 0)
             ),
-        ) if self.drawer_visible else None
+        ) 
 
         end_drawer = EndDrawer(
-            child=Text('Hello End'),
+            child=Row(
+                mainAxisAlignment= MainAxisAlignment.SPACE_BETWEEN,
+                children=[
+                    IconButton(
+                        icon=Icon('close'),
+                        onPressed=self.close_end_drawer
+                    ),
+                    Text('Hello End'),
+                ]
+            ),
             width=250,
             divider=Divider(
                 margin=EdgeInsets.symmetric(8, 0)
             ),
-        ) if self.end_drawer_visible else None
+        ) 
 
         snack_bar_action = SnackBarAction(
             label=Text("UNDO"),
@@ -113,10 +139,9 @@ class MyAppState(State):
         snack_bar = SnackBar(
             content=Text("Item deleted"),
             action=snack_bar_action,
-            duration=5000,
+            duration=3,
             backgroundColor=Colors.color("darkgrey"), 
-        ) if self.snack_bar_visible else None
-
+        ) 
         scaffold = Scaffold(
             appBar=AppBar(
                 title=Text('Bottom Navigation Example'),
@@ -124,12 +149,12 @@ class MyAppState(State):
                 shadowColor=Colors.rgba(0, 0, 0, 0.2),
                 leading=IconButton(
                     icon=Icon('bars'),
-                    onPressed=self.toggle_drawer
+                    onPressed=self.open_drawer
                 ),
                 actions=[
                     IconButton(
                         icon=Icon('bars'),
-                        onPressed=self.toggle_end_drawer
+                        onPressed=self.open_end_drawer
                     ),
                 ],
             ) if self.currentIndex == 0 else None,
@@ -169,7 +194,7 @@ class MyAppState(State):
                 height=300,
                 backgroundColor=Colors.color("lightgrey"),
                 enableDrag=True
-            ) if self.bottom_sheet_visible else None,
+            ),
             snackBar=snack_bar
         )
 
