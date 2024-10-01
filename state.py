@@ -12,15 +12,13 @@ class CounterState(State):
 
     def increment(self):
         self.count += 1
-        print(self.count)
         self.setState()
 
     def decrement(self):
         self.count -= 1
-        print(self.count)
         self.setState()
 
-    def create_widget(self):
+    def build(self):
         return Column(
             children=[
                 Text(f'Count: {self.count}'),
@@ -28,8 +26,13 @@ class CounterState(State):
                     child=Text('Increment'),
                     onPressed=self.increment,
                 ),
-                
-                ElevatedButton(child=Text('Decrement'),onPressed=self.decrement,)
+                SizedBox(
+                    height=16
+                ),
+                ElevatedButton(
+                    child=Text('Decrement'),
+                    onPressed=self.decrement,
+                )
             ]
         )
 

@@ -28,7 +28,10 @@ class Container(Widget):
         self.alignment = alignment
         self.clipBehavior = clipBehavior
         
+  
     
+        self.add_child(self.child) if self.child else None # Register the child widget with the framework
+
 
     def to_html(self):
         padding_str = f'padding: {self.padding.to_css()};' if self.padding else ''
@@ -60,7 +63,12 @@ class Text(Widget):
         self.overflow = overflow
 
     
-    
+    def get_children(self):
+        return []  # SizedBox doesn't have children, so return an empty list
+
+    def remove_all_children(self):
+        pass
+
 
     def to_html(self):
         style = self.style.to_css()
@@ -71,7 +79,7 @@ class Text(Widget):
         if self.overflow:
             style += f"overflow: {self.overflow};"
 
-        return f"<p id='{self.widget_id()}' style='{style}'>{self.data}</p>"
+        return f"<p id='{self.widget_id()}' style='{style} margin-top: 0px; margin-bottom: 0px;'>{self.data}</p>"
 
 
 
@@ -85,7 +93,7 @@ class TextButton(Widget):
         self.api = Api()
         self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
 
-    
+        self.add_child(self.child) if self.child else None # Register the child widget with the framework    
 
     def to_html(self):
         style = self.style.to_css()
@@ -104,7 +112,7 @@ class ElevatedButton(Widget):
         self.api = Api()
         self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
 
-
+        self.add_child(self.child) if self.child else None # Register the child widget with the framework
    
 
     def to_html(self):
@@ -124,7 +132,7 @@ class IconButton(Widget):
 
         self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
 
-
+        self.add_child(self.child) if self.child else None # Register the child widget with the framework
     
 
 
@@ -152,7 +160,7 @@ class FloatingActionButton(Widget):
         self.api = Api()
         self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
 
-    
+        self.add_child(self.child) if self.child else None # Register the child widget with the framework
 
     def to_html(self):
         self.api.register_callback(self.onPressedName, self.onPressed)
@@ -177,6 +185,15 @@ class Column(Widget):
         self.textDirection = textDirection
         self.verticalDirection = verticalDirection
         self.textBaseline = textBaseline
+
+        
+
+        # Loop over self.children and add them to the widget tree
+        for child in self.children:
+            self.add_child(child) if child else None # Use the add_child method to manage parent-child relationships
+
+        #("The list of added children: ", self.get_children())  # Check if children were added properly
+       
 
     
 
@@ -213,6 +230,13 @@ class Row(Widget):
         self.verticalDirection = verticalDirection
         self.textBaseline = textBaseline
 
+
+        # Loop over self.children and add them to the widget tree
+        for child in self.children:
+            self.add_child(child) if child else None # Use the add_child method to manage parent-child relationships
+
+        #print("The list of added children: ", self.get_children())  # Check if children were added properly
+
     
 
     def to_html(self):
@@ -243,6 +267,9 @@ class Image(Widget):
         self.height = height
         self.fit = fit
         self.alignment = alignment
+
+
+        self.add_child(self.image) if self.image else None
 
     
 
@@ -275,6 +302,11 @@ class Icon(Widget):
         self.size = size
         self.color = color
         
+    def get_children(self):
+        return []  # SizedBox doesn't have children, so return an empty list
+
+    def remove_all_children(self):
+        pass
 
 
     def to_html(self):
@@ -301,6 +333,13 @@ class ListView(Widget):
         self.itemExtent = itemExtent
         self.cacheExtent = cacheExtent
         self.semanticChildCount = semanticChildCount
+
+        # Loop over self.children and add them to the widget tree
+        for child in self.children:
+            self.add_child(child) if child else None  # Use the add_child method to manage parent-child relationships
+
+        #print("The list of added children: ", self.get_children())  # Check if children were added properly
+
 
 
     
@@ -348,6 +387,11 @@ class GridView(Widget):
 
 
     
+        # Loop over self.children and add them to the widget tree
+        for child in self.children:
+            self.add_child(child) if child else None  # Use the add_child method to manage parent-child relationships
+
+        #print("The list of added children: ", self.get_children())  # Check if children were added properly
 
 
 
@@ -388,6 +432,11 @@ class Stack(Widget):
         self.key = key
 
 
+        # Loop over self.children and add them to the widget tree
+        for child in self.children:
+            self.add_child(child)  if child else None # Use the add_child method to manage parent-child relationships
+
+        #print("The list of added children: ", self.get_children())  # Check if children were added properly
     
 
 
@@ -421,6 +470,8 @@ class Positioned(Widget):
         self.left = left
 
 
+        self.add_child(self.child) if self.child else None # Use the add_child method to manage parent-child relationships
+
     
 
 
@@ -445,7 +496,7 @@ class Expanded(Widget):
         self.key = key
 
 
-    
+        self.add_child(self.child) if self.child else None# Register the child widget with the framework
 
 
 
@@ -459,6 +510,12 @@ class Spacer(Widget):
         super().__init__(widget_id=None)
         self.flex = flex
         self.key = key
+    
+    def get_children(self):
+        return []  # SizedBox doesn't have children, so return an empty list
+
+    def remove_all_children(self):
+        pass
 
 
     def widget_id(self):
@@ -468,7 +525,23 @@ class Spacer(Widget):
     def to_html(self):
         return f"<div id='{self.widget_id()}' style='flex: {self.flex};'></div>"
         
-        
+class SizedBox(Widget):
+    def __init__(self, height=0, width=0):
+        super().__init__(widget_id=None)
+        self.height = height
+        self.width = width
+
+    def get_children(self):
+        return []  # SizedBox doesn't have children, so return an empty list
+
+    def remove_all_children(self):
+        pass
+
+    def widget_id(self):
+        return 'sizedBox'
+
+    def to_html(self):
+        return f"<div id='{self.widget_id()}' style='height: {self.height}px; width: {self.width}px;'></div>"
 
 class AppBar(Widget):
     def __init__(self, title=None, actions=None, leading=None, backgroundColor=None, elevation=None, centerTitle=None, titleSpacing=None, pinned=False, bottom=None, shadowColor=Colors.rgba(0,0,0,0.2)):
@@ -484,7 +557,11 @@ class AppBar(Widget):
         self.pinned = pinned
         self.bottom = bottom
         
+        self.add_child(self.title) if self.title else None
+        self.add_child(self.leading) if self.leading else None
 
+        for action in self.actions:
+            self.add_child(action) if action else None
     
 
 
@@ -559,7 +636,8 @@ class BottomNavigationBar(Widget):
 
 
 
-    
+        for item in self.items:
+            self.add_child(item) if item else None
 
 
     def to_html(self):
@@ -592,7 +670,8 @@ class BottomNavigationBarItem(Widget):
         self.label = label
 
 
-
+        self.add_child(self.icon) if self.icon else None
+        self.add_child(self.label) if self.label else None
     
 
 
@@ -605,7 +684,9 @@ class BottomNavigationBarItem(Widget):
         should_show_label = (selected and showSelectedLabels) or (not selected and showUnselectedLabels)
         should_color_label = (fixedColor and selected) or (not fixedColor and selected)
         label_color = fixedColor if should_color_label else '#aaa'
-        label_html = f"<div style='color: {label_color};'>{self.label}</div>" if should_show_label else ''
+        label = self.label
+        #label.style()
+        label_html = f"<div style='color: {label_color};'>{self.label.to_html()}</div>" if should_show_label else ''
 
         return f"<div id='{self.widget_id()}' style='text-align: center; '>{icon_html}{label_html}</div>"
 
@@ -660,8 +741,22 @@ class Scaffold(Widget):
         self.key = key
 
 
+        children = [
+            self.appBar, 
+            self.body, 
+            self.floatingActionButton,
+            self.bottomNavigationBar,
+            self.drawer,
+            self.endDrawer,
+            self.bottomSheet,
+            self.snackBar
+            ]
 
-    
+        for child in children:
+            self.add_child(child) if child else None
+        
+        
+        
 
 
     def to_html(self):
@@ -724,9 +819,11 @@ class Body(Widget):
         super().__init__(widget_id=None)
         self.child = child
         self.id = self.widget_id()
+
+        self.add_child(self.child) if self.child else None # Register the child widget with the framework
         
     def id(self):
-        print("Body: ", self.widget_id())
+        #print("Body: ", self.widget_id())
         return self.widget_id()
 
     def to_html(self):
@@ -744,6 +841,11 @@ class Divider(Widget):
         self.color = color
         self.border = border
 
+    def get_children(self):
+        return []  # SizedBox doesn't have children, so return an empty list
+
+    def remove_all_children(self):
+        pass
 
     
 
@@ -766,7 +868,7 @@ class Drawer(Widget):
         self.is_open = False
 
 
-
+        self.add_child(self.child) if self.child else None# Register the child widget with the framework
     
 
 
@@ -800,7 +902,7 @@ class EndDrawer(Widget):
         self.is_open = False
 
 
-
+        self.add_child(self.child) if self.child else None# Register the child widget with the framework
     
 
 
@@ -833,7 +935,7 @@ class BottomSheet(Widget):
 
 
 
-    
+        self.add_child(self.child) if self.child else None# Register the child widget with the framework
 
 
     def to_html(self):
@@ -852,7 +954,7 @@ class Center(Widget):
 
 
 
-    
+        self.add_child(self.child) if self.child else None# Register the child widget with the framework    
 
 
     def to_html(self):
@@ -877,8 +979,14 @@ class ListTile(Widget):
 
 
 
-    
+        children = [
+            self.leading,
+            self.title,
+            self.subtitle
+        ]
 
+        for child in children:
+            self.add_child(self.child) if child else None# Register the child widget with the framework
 
     def to_html(self):
         self.api.register_callback(self.onTapName, self.onTap)
@@ -912,9 +1020,13 @@ class SnackBar(Widget):
         self.is_visible = False
 
 
-
+        children = [
+            self.content,
+            self.action,
+        ]
     
-
+        for child in children:
+            self.add_child(child) if child else None# Register the child widget with the framework
 
     def to_html(self):
         action_html = self.action.to_html() if self.action else ""
@@ -937,7 +1049,7 @@ class SnackBarAction(Widget):
         self.api = Api()
         self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
 
-
+        self.add_child(self.label) if self.label else None
 
     
 

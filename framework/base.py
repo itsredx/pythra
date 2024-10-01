@@ -10,6 +10,10 @@ class Widget:
 
     def __init__(self, widget_id=None):
         framework = self._framework_ref()
+        #self._key = key
+        self._parent = None  # Reference to the parent widget
+        self._children = []  # List of child widgets
+
         if framework:
             # Use the framework's IDManager to generate or validate the widget ID
             if widget_id and widget_id in framework.widget_registry:
@@ -25,3 +29,29 @@ class Widget:
 
     def to_html(self):
         raise NotImplementedError("Each widget must implement the to_html method.")
+
+    def set_parent(self, parent_widget):
+        """Sets the parent of the current widget."""
+        self._parent = parent_widget
+
+    def add_child(self, child_widget):
+        """Adds a child to the current widget."""
+        self._children.append(child_widget)
+        child_widget.set_parent(self)
+
+    def get_children(self):
+        """Returns the list of child widgets."""
+        return self._children 
+
+    def remove_child(self, child_widget):
+        """Removes a specific child widget."""
+        self._children.remove(child_widget)
+        child_widget.set_parent(None)
+
+    def remove_all_children(self):
+        """Removes all children from the current widget."""
+        self._children.clear() 
+
+    
+
+    

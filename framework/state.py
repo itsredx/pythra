@@ -18,13 +18,13 @@ class State:
         widget = self._cached_widget
         if widget:
             # Regenerate the widget tree with the updated state
-            self._cached_widget = self.create_widget()
+            self._cached_widget = self.build()
             
             self.update_existing_widget()
             self.framework.delete_widget(self._original_widget_id)
-            print(self.framework.get_size())
+            #print("Size of the registry is: ",self.framework.get_size())
             self._original_widget_id = self._cached_widget.widget_id()
-            #print('setState: {',self.create_widget().to_html(), '}')
+            #print('setState: {',self.build().to_html(), '}')
             #print('setState count: ',self.count)
             #widget.update_content(self.build())
         else:
@@ -39,14 +39,14 @@ class State:
     def widget_id(self):
         return self._widget_id
 
-    def build(self):
+    def buildCache(self):
         if not self._cached_widget:
-            self._cached_widget = self.create_widget()
+            self._cached_widget = self.build()
             self._original_widget_id = self._cached_widget.widget_id()
         return self._cached_widget
 
-    def create_widget(self):
-        raise NotImplementedError("create_widget() should be implemented by subclasses")
+    def build(self):
+        raise NotImplementedError("build() should be implemented by subclasses")
 
     def update_existing_widget(self):
         widget = self.framework.get_widget(self._widget_id)
@@ -75,7 +75,7 @@ class StatefulWidget(Widget):
 
     def update(self):
         if self.framework:
-            updated_html = self._state.build().to_html()
+            updated_html = self._state.buildCache().to_html()
             self.framework.update_widget(self.widget_id(), updated_html)
 
     def set_widget_id(self, widget_id):
@@ -85,7 +85,7 @@ class StatefulWidget(Widget):
         return self._id  # Use the ID from the Widget base class
 
     def to_html(self):
-        return self._state.build().to_html()
+        return self._state.buildCache().to_html()
 
     def update_html_content(self, updated_html):
         if self.framework:

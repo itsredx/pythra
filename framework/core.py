@@ -50,10 +50,14 @@ class Framework:
         self.widgets = []
         self.registry = WidgetRegistry()
 
-    def register_widget(self, widget):
+    def register_widget(self, widget, parent_widget=None):
         widget_id = widget.widget_id()
-        #self.widget_registry[widget_id] = widget
         self.registry.add_widget(widget_id, widget)
+
+        if parent_widget:
+            parent_widget.add_child(widget)
+        else:
+            self.root_widget = widget  # This could be your root widget
 
     def get_widget(self, widget_id):
         return self.registry.get_widget(widget_id)
@@ -65,7 +69,27 @@ class Framework:
         self.registry.update_widget(widget_id, widget)
 
     def delete_widget(self, widget_id):
-        self.registry.delete_widget(widget_id)
+        #self.registry.delete_widget(widget_id)
+        """Deletes the widget and its children recursively from the registry."""
+        widget = self.get_widget(widget_id)
+        if widget:
+            # Recursively delete all children first
+            self._delete_widget_children(widget)
+            # Now delete the widget itself
+            self.registry.delete_widget(widget_id)
+            #print(f"Widget {widget_id} and its children deleted.")
+        else:
+            print(f"Widget with ID {widget_id} not found.")
+
+    def _delete_widget_children(self, widget):
+        """Recursively deletes the children of a widget."""
+        children = widget.get_children() if widget.get_children() else []
+        for child in children:
+            self._delete_widget_children(child)  # Recursively delete child's children
+            self.registry.delete_widget(child.widget_id())  # Delete child from registry
+            #print("Child: ", child)
+            #print("Widget Id: ",child.widget_id())
+        widget.remove_all_children()  # Clear the children list of the widget
 
     def get_size(self):
         return self.registry.get_size()
@@ -92,7 +116,7 @@ class Framework:
             raise ValueError("Root widget not set. Use set_root() to define the root widget.")
         
         html_content = self.root_widget.to_html()
-        print('From core.py in Framework.run() {HTML From First Run:',html_content, '}')
+        #print('From core.py in Framework.run() {HTML From First Run:',html_content, '}')
         html_file = 'web/index.html'
         os.makedirs('web', exist_ok=True)
 
@@ -111,7 +135,7 @@ class Framework:
             """)
 
         self.window = webview.create_window(title, html_file, js_api=self.api)
-        webview.start()
+        webview.start(debug=True)
         
 
     def collect_callbacks(self, widget):
@@ -213,13 +237,13 @@ class Framework:
         if widget_id in self.get_all_widgets():
             widget = self.get_widget(widget_id=widget_id)
             widget._update_html(html_content)
-            print(widget_id)
+            #print(widget_id)
 
     def update_widget(self, widget_id, html_content):
         if self.window:
             html_widget = html_content
             #widget_id = widget.widget_id()
-            print(self.get_all_widgets())
+            #print(self.get_all_widgets())
             if widget_id in self.get_all_widgets():
                 
                 #widget = self.widget_registry[widget_id]
