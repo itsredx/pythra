@@ -17,6 +17,10 @@ class EdgeInsets:
     def symmetric(horizontal=0, vertical=0):
         return EdgeInsets(left=horizontal, right=horizontal, top=vertical, bottom=vertical)
 
+    @staticmethod
+    def LRTB(left=0, right=0, top=0, bottom=0):
+        return EdgeInsets(left=left, right=right, top=top, bottom=bottom)
+
     def to_css(self):
         return f"{self.top}px {self.right}px {self.bottom}px {self.left}px"
     
@@ -146,7 +150,7 @@ def Offset(x, y):
 
 
 class BoxDecoration:
-    def __init__(self, color=None, border=None, borderRadius=None, boxShadow=None, transform=None):
+    def __init__(self, color=None, border=None, borderRadius=None, boxShadow=None, transform=None, padding=None):
         if color:
             self.color = Colors.color(color) if isinstance(color, str) and not color.startswith("#") else Colors.hex(color)
         else:
@@ -155,6 +159,7 @@ class BoxDecoration:
         self.borderRadius = borderRadius
         self.boxShadow = boxShadow
         self.transform = transform
+        self.padding = padding
 
     def to_css(self):
         styles = []
@@ -168,6 +173,8 @@ class BoxDecoration:
             styles.append(f"box-shadow: {self.boxShadow.to_css()};")
         if self.transform:
             styles.append(f"transform: {self.transform};")
+        if self.padding:
+            styles.append(f"padding: {self.padding.to_css()};")
         return ' '.join(styles)
 
 class ClipBehavior(Enum):
@@ -248,6 +255,23 @@ class BorderStyle:
     HIDDEN = 'hidden'
 
 
+class BorderRadius:
+    @staticmethod
+    def all(value):
+        return BorderRadius(value, value, value, value)
+    
+    def __init__(self, top_left, top_right, bottom_right, bottom_left):
+        self.top_left = top_left
+        self.top_right = top_right
+        self.bottom_right = bottom_right
+        self.bottom_left = bottom_left
+    
+    def to_css(self):
+        return f"border-radius: {self.top_left}px {self.top_right}px {self.bottom_right}px {self.bottom_left}px;"
+
+
+
+
 class BorderSide:
     def __init__(self, width=None, style=None, color=None, borderRadius=None):
         self.width = width
@@ -304,6 +328,8 @@ class ButtonStyle:
             styles.append(f"min-width: {self.minimumSize[0]}px; min-height: {self.minimumSize[1]}px;")
         if self.side:
             styles.append(f"{self.side.to_css()}")
+        else:
+            styles.append("border: none;")
         if self.shape:
             styles.append(f"border-radius: {self.shape};")
         if self.textStyle:
@@ -342,3 +368,10 @@ class TextBaseline():
 class VerticalDirection():
     DOWN = 'down'
     UP = 'up'
+
+
+class BoxFit:
+    CONTAIN = 'contain'
+    COVER = 'cover'
+    FILL = 'fill'
+    NONE = 'none'

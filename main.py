@@ -148,7 +148,8 @@ class MyAppState(State):
                 elevation=2,
                 shadowColor=Colors.rgba(0, 0, 0, 0.2),
                 leading=IconButton(
-                    icon=Icon('bars'),
+                    icon=Icon(custom_icon='icons/equalizer.png'),
+                    iconSize=24,
                     onPressed=self.open_drawer
                 ),
                 actions=[

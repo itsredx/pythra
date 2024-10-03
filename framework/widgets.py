@@ -9,6 +9,7 @@ from .config import Config
 
 config = Config()
 assets_dir = config.get('assets_dir', 'assets')
+port = config.get('assets_server_port')
 
 
 
@@ -123,12 +124,15 @@ class ElevatedButton(Widget):
 
 
 class IconButton(Widget):
-    def __init__(self, icon, onPressed=None, style=None):
+    def __init__(self, icon, onPressed=None, iconSize=None, style=None):
         super().__init__(widget_id=None)
         self.child = icon
         self.onPressed = onPressed
+        self.iconSize = iconSize
         self.style = style or ButtonStyle()
         self.api = Api()
+
+        
 
         self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
 
@@ -139,13 +143,14 @@ class IconButton(Widget):
     def to_html(self):
         button_id = f"{self.widget_id()}"
         style = self.style.to_css()
+        self.child.size = self.iconSize if self.iconSize and isinstance(self.child, Widget) else 16
         child_html = self.child.to_html() if isinstance(self.child, Widget) else self.child
 
         
         self.api.register_callback(self.onPressedName, self.onPressed)
 
         return f"""
-        <button id='{button_id}' style='{style}' onclick='handleClick("{self.onPressedName}")'>
+        <button id='{button_id}' style='{style} background-color: transparent;' onclick='handleClick("{self.onPressedName}")'>
             {child_html}
         </button>
         """
@@ -279,9 +284,10 @@ class Image(Widget):
         return f"<img id='{self.widget_id()}' src='{src}' style='{style}' />"
 
 class AssetImage:
+    
     def __init__(self, file_name):
         # Use the local server to serve assets
-        self.src = f'http://localhost:8000/{assets_dir}/{file_name}'
+        self.src = f'http://localhost:{port}/{assets_dir}/{file_name}'
 
     def get_source(self):
         return self.src
@@ -295,7 +301,7 @@ class NetworkImage:
 
 
 class Icon(Widget):
-    def __init__(self, icon_name=None, custom_icon=None, size=24, color=None):
+    def __init__(self, icon_name=None, custom_icon=None, size=16, color=None):
         super().__init__(widget_id=None)
         self.icon_name = icon_name
         self.custom_icon = custom_icon
@@ -981,6 +987,8 @@ class BottomSheet(Widget):
             self.padding = padding
             self.enableDrag = enableDrag
             self.is_open = False
+            self.show_barrier = False
+            self.barrier_color = Colors.rgba(0, 0, 0, 0.5) # Modal barrier color (overlay)
             self.initialized = True  # Mark the instance as initialized
 
 
@@ -989,10 +997,14 @@ class BottomSheet(Widget):
 
 
     def to_html(self):
+        # Barrier for background dimming (optional)
+        barrier_html = f'<div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: {self.barrier_color}; z-index: 899;"></div>' if self.is_open else ''
+        barrier_html = barrier_html if self.show_barrier else ''
         drag_behavior = 'cursor: grab;' if self.enableDrag else ''
         translate = '0px' if self.is_open else '100%'
         return f"""
-        <div id="{self.widget_id()}" style="position: fixed; left: 0; bottom: 0; z-index: 2; width: 100%; height: {self.height}px; padding: {self.padding.to_css()}; background-color: {self.backgroundColor}; box-shadow:{self.elevation}; transform: translateY({translate}); transition: transform 0.3s ease; {drag_behavior}">
+        {barrier_html} 
+        <div id="{self.widget_id()}" style="position: fixed; left: 0; bottom: 0; z-index: 900; width: 100%; height: {self.height}px; padding: {self.padding.to_css()}; background-color: {self.backgroundColor}; box-shadow:{self.elevation}; transform: translateY({translate}); transition: transform 0.3s ease; {drag_behavior}">
             {self.child.to_html()}
         </div>
         """
@@ -1042,7 +1054,7 @@ class ListTile(Widget):
         ]
 
         for child in children:
-            self.add_child(self.child) if child else None# Register the child widget with the framework
+            self.add_child(child) if child else None# Register the child widget with the framework
 
     def to_html(self):
         self.api.register_callback(self.onTapName, self.onTap)
@@ -1100,7 +1112,17 @@ class SnackBar(Widget):
         action_html = self.action.to_html() if self.action else ""
         display_style = "flex" if self.is_open else "none"
         return f"""
-        <div id="{self.widget_id()}" style="display: {display_style}; position: fixed; bottom: 0; left: 0; width: calc(100% - 48px); padding: {self.padding.to_css()}; background-color: {self.backgroundColor}; box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3); z-index: 1000; justify-content: space-between; align-items: center;">
+        <div id="{self.widget_id()}" 
+        style="display: {display_style}; 
+        position: fixed; 
+        bottom: 0; left: 0; 
+        width: calc(100% - 48px); 
+        padding: {self.padding.to_css()}; 
+        background-color: {self.backgroundColor}; 
+        box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3); 
+        z-index: 999; 
+        justify-content: space-between; 
+        align-items: center;">
             <div>{self.content.to_html()}</div>
             {action_html}
         </div>
@@ -1141,7 +1163,443 @@ class SnackBarAction(Widget):
         self.api.register_callback(self.onPressedName, self.onPressed)
 
         return f"""
-        <button id="{self.widget_id()}" onclick="handleClick(\'{self.onPressedName}\')" style="background: none; border: none; color: {self.textColor}; font-size: 14px; cursor: pointer;">
+        <button id="{self.widget_id()}" 
+        onclick="handleClick(\'{self.onPressedName}\')" 
+        style="background: none; 
+        border: none; 
+        color: {self.textColor}; 
+        font-size: 14px; 
+        cursor: pointer;">
             {self.label.to_html()}
         </button>
         """
+
+
+class Placeholder(Widget):
+    def __init__(self, 
+                 color=Colors.color('gray'), 
+                 stroke_width=2, 
+                 height=100, 
+                 width=100, 
+                 child=None):
+        super().__init__(widget_id=None)
+        self.color = color
+        self.stroke_width = stroke_width
+        self.height = height
+        self.width = width
+        self.child = child
+
+        if self.child:
+            self.add_child(self.child)
+
+    def to_html(self):
+        if self.child:
+            return self.child.to_html()
+        else:
+            return f"""
+            <div id="{self.widget_id()}" style="
+                height: {self.height}px;
+                width: {self.width}px;
+                border: {self.stroke_width}px dashed {self.color};
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            ">
+                <p style="
+                color: {self.color};
+                 font-size: 12px;
+                 ">Placeholder</p>
+            </div>
+            """
+
+class Padding(Widget):
+    def __init__(self, padding=EdgeInsets.all(10), child=None):
+        super().__init__(widget_id=None)
+        self.padding = padding
+        self.child = child
+
+        if self.child:
+            self.add_child(self.child)
+
+    def to_html(self):
+        child_html = self.child.to_html() if self.child else ''
+        return f"""
+        <div id="{self.widget_id()}" 
+        style="padding: {self.padding.to_css()};">
+            {child_html}
+        </div>
+        """
+
+class Align(Widget):
+    def __init__(self, alignment=Alignment.center(), child=None):
+        super().__init__(widget_id=None)
+        self.alignment = alignment
+        self.child = child
+
+        if self.child:
+            self.add_child(self.child)
+
+    def to_html(self):
+        child_html = self.child.to_html() if self.child else ''
+        return f"""
+        <div id="{self.widget_id()}" 
+        style="display: flex; 
+        justify-content: {self.alignment.horizontal}; 
+        align-items: {self.alignment.vertical}; 
+        height: 100%; 
+        width: 100%;">
+            {child_html}
+        </div>
+        """
+
+
+class AspectRatio(Widget):
+    def __init__(self, aspect_ratio, child=None):
+        super().__init__(widget_id=None)
+        self.aspect_ratio = aspect_ratio
+        self.child = child
+
+        if self.child:
+            self.add_child(self.child)
+
+    def to_html(self):
+        child_html = self.child.to_html() if self.child else ''
+        
+        # Aspect ratio calculation for CSS: padding-bottom is used to maintain aspect ratio
+        padding_bottom = 100 / self.aspect_ratio
+
+        return f"""
+        <div id="{self.widget_id()}" 
+        style="position: relative; 
+        width: 100%; 
+        padding-bottom: {padding_bottom}%; 
+        height: 0; overflow: hidden;">
+            <div style="position: absolute; 
+            top: 0; left: 0; width: 100%; height: 100%;">
+                {child_html}
+            </div>
+        </div>
+        """
+
+class FittedBox(Widget):
+    def __init__(self, fit=BoxFit.CONTAIN, alignment=Alignment.center(), child=None):
+        super().__init__(widget_id=None)
+        self.fit = fit
+        self.alignment = alignment
+        self.child = child
+
+        if self.child:
+            self.add_child(self.child)
+
+    def to_html(self):
+        alignment_css = self.alignment.to_css()
+        child_html = self.child.to_html() if self.child else ''
+
+        # Using BoxFit values directly
+        object_fit = self.fit
+
+        return f"""
+        <div id="{self.widget_id()}" 
+        style="width: 100%; height: 100%; {alignment_css};">
+            <div style="flex: 0 0 auto; object-fit: {object_fit};">
+                {child_html}
+            </div>
+        </div>
+        """
+
+class FractionallySizedBox(Widget):
+    def __init__(self, widthFactor=None, heightFactor=None, alignment=Alignment.center(), child=None):
+        super().__init__(widget_id=None)
+        self.widthFactor = widthFactor
+        self.heightFactor = heightFactor
+        self.alignment = alignment
+        self.child = child
+
+        if self.child:
+            self.add_child(self.child)
+
+    def to_html(self):
+        alignment_css = self.alignment.to_css()
+
+        # Calculate the width and height percentages based on the factors
+        width = f"{self.widthFactor * 100}%" if self.widthFactor is not None else 'auto'
+        height = f"{self.heightFactor * 100}%" if self.heightFactor is not None else 'auto'
+        
+        child_html = self.child.to_html() if self.child else ''
+
+        return f"""
+        <div id="{self.widget_id()}" 
+        style="display: flex; 
+        {alignment_css}; 
+        width: 100%; height: 100%;">
+            <div style="width: {width}; height: {height};">
+                {child_html}
+            </div>
+        </div>
+        """
+
+
+class Flex(Widget):
+    def __init__(self, 
+                 direction=Axis.HORIZONTAL, 
+                 mainAxisAlignment=MainAxisAlignment.START, 
+                 crossAxisAlignment=CrossAxisAlignment.START, 
+                 children=None, 
+                 padding=None):
+        super().__init__()
+        self.direction = direction
+        self.mainAxisAlignment = mainAxisAlignment
+        self.crossAxisAlignment = crossAxisAlignment
+        self.children = children if children is not None else []
+        self.padding = padding if padding is not None else EdgeInsets.all(0)
+
+        if self.children:
+            for child in self.children:
+                self.add_child(child)
+        
+    def to_html(self):
+        direction_css = 'row' if self.direction == Axis.HORIZONTAL else 'column'
+        
+        # CSS for main axis and cross axis alignment
+        justify_content = self.mainAxisAlignment
+        align_items = self.crossAxisAlignment
+        
+        # Add padding to the Flex container
+        padding_css = self.padding.to_css()
+        
+        # Generate the CSS for the Flex container
+        container_css = f"""display: flex; 
+        flex-direction: {direction_css}; 
+        justify-content: {justify_content}; 
+        align-items: {align_items}; 
+        padding: {padding_css};"""
+        
+        # Build HTML for each child
+        children_html = ''.join([child.render() for child in self.children])
+        
+        return f'<div style="{container_css}">{children_html}</div>'
+
+
+class Wrap(Widget):
+    def __init__(self, 
+                 direction=Axis.HORIZONTAL, 
+                 alignment=MainAxisAlignment.START, 
+                 crossAxisAlignment=CrossAxisAlignment.START,
+                 runAlignment=MainAxisAlignment.START,
+                 spacing=0,
+                 runSpacing=0,
+                 clipBehavior=ClipBehavior.NONE,
+                 children=None):
+        self.direction = direction
+        self.alignment = alignment
+        self.crossAxisAlignment = crossAxisAlignment
+        self.runAlignment = runAlignment
+        self.spacing = spacing
+        self.runSpacing = runSpacing
+        self.clipBehavior = clipBehavior
+        self.children = children or []
+
+
+        if self.children:
+            for child in self.children:
+                self.add_child(child)
+    
+   
+
+    def to_html(self):
+        styles = []
+        # Flex properties for wrapping
+        flex_direction = 'row' if self.direction == Axis.HORIZONTAL else 'column'
+        styles.append(f"display: flex; flex-wrap: wrap; flex-direction: {flex_direction};")
+        
+        # Main Axis Alignment
+        styles.append(f"justify-content: {self.alignment};")
+        
+        # Cross Axis Alignment
+        styles.append(f"align-items: {self.crossAxisAlignment};")
+        
+        # Run Alignment (applies to multi-row or multi-column layout)
+        # In CSS, justify-content applies similarly to the "runAlignment"
+        styles.append(f"align-content: {self.runAlignment};")
+        
+        # Spacing (gap between items)
+        styles.append(f"gap: {self.spacing}px;")
+        
+        # Run Spacing (spacing between lines or rows of items)
+        # CSS does not directly support run-spacing, so we may have to adjust for this manually later
+        styles.append(f"row-gap: {self.runSpacing}px;" if self.direction == Axis.HORIZONTAL else f"column-gap: {self.runSpacing}px;")
+        
+        # Clip Behavior
+        if self.clipBehavior:
+            overflow_css = "overflow: hidden;" if self.clipBehavior != ClipBehavior.NONE else ""
+            styles.append(overflow_css)
+        
+        css = " ".join(styles)
+        children_html = "".join([child.to_html() for child in self.children])
+        return f'<div style="{css}">{children_html}</div>'
+
+
+
+class Dialog(Widget):
+
+    _instance = None  # Class-level attribute to store the single instance
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            # If an instance doesn't exist, create one
+            cls._instance = super(Dialog, cls).__new__(cls)
+        return cls._instance  # Return the singleton instance
+
+    def __init__(self,
+                 title=None,
+                 content=None,
+                 actions=None,
+                 title_alignment=TextAlign.center(),  # Allows title alignment customization
+                 title_padding=EdgeInsets.all(10),  # Padding around the title
+                 content_padding=EdgeInsets.all(5),  # Padding around the content
+                 dialog_shape=BorderRadius.all(10),  # Custom shape (border radius)
+                 elevation=8,  # Shadow depth for elevation
+                 background_color=Colors.hex("#fff"),  # Background color
+                 barrier_color=Colors.rgba(0, 0, 0, 0.5),  # Modal barrier color (overlay)
+                 padding=EdgeInsets.all(20)):  # Padding inside the dialog
+
+        # Only initialize the instance once
+        if not hasattr(self, 'initialized'):
+            super().__init__(widget_id=None)
+            self.title = title
+            self.content = content
+            self.actions = actions or []
+            self.title_alignment = title_alignment
+            self.title_padding = title_padding
+            self.content_padding = content_padding
+            self.dialog_shape = dialog_shape
+            self.elevation = elevation
+            self.background_color = background_color
+            self.barrier_color = barrier_color
+            self.padding = padding
+
+            if self.content:
+                self.add_child(self.content)
+                self.add_child(self.title)
+            for action in self.actions:
+                self.add_child(action)
+
+            self.initialized = True  # Mark the instance as initialized
+
+    def to_html(self):
+        # Title HTML
+        title_html = f'<div style="text-align: {self.title_alignment.to_css()}; padding: {self.title_padding.to_css()};">{self.title.to_html()}</div>' if self.title else ""
+        
+        # Content HTML
+        content_html = f'<div style="padding: {self.content_padding.to_css()}; margin-top: 4px;">{self.content.to_html()}</div>' if self.content else ""
+        
+        # Actions (buttons, etc.)
+        actions_html = "".join([action.to_html() for action in self.actions])
+
+        # Calculate box-shadow based on elevation for the dialog
+        box_shadow = f"0 {self.elevation}px {self.elevation * 2}px rgba(0, 0, 0, 0.2)"
+        
+        # Dialog CSS
+        dialog_css = (
+            f"{self.dialog_shape.to_css()}"  # Dialog shape (border-radius)
+            f"background-color: {self.background_color};"
+            f"padding: {self.padding.to_css()};"
+            f"position: fixed; top: 50%; left: 50%;"
+            f"transform: translate(-50%, -50%);"
+            f"box-shadow: {box_shadow};"  # Elevation (shadow)
+            f"max-width: 330px; min-width: 180px;"
+            f"z-index: 1000;"
+        )
+
+        # Barrier for background dimming (optional)
+        barrier_html = f'''<div style="position: fixed; 
+        top: 0; left: 0; width: 100vw; 
+        height: 100vh; background-color: {self.barrier_color}; 
+        z-index: 999;"></div>'''
+
+        # Full dialog HTML
+        return f'''
+        {barrier_html}  <!-- Barrier to block interaction outside the dialog -->
+        <div style="{dialog_css}">
+            {title_html}
+            {content_html}
+            <div class="dialog-actions" 
+            style="margin-top: 20px;">
+            {actions_html}
+            </div>
+        </div>
+        '''
+
+
+
+"""
+class Dialog(Widget):
+
+    _instance = None  # Class-level attribute to store the single instance
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            # If an instance doesn't exist, create one
+            cls._instance = super(Dialog, cls).__new__(cls)
+        return cls._instance  # Return the singleton instance
+    def __init__(
+            self,
+            title=None, 
+            content=None, 
+            actions=None, 
+            ):
+         # Only initialize the instance once
+        if not hasattr(self, 'initialized'):    
+            super().__init__(widget_id=None)
+            self.title = title
+            self.content = content
+            self.actions = actions or []
+            self.color = color=Colors.hex("#fff")
+            self.border = BorderSide(color=Colors.hex("#000"), style=BorderStyle.SOLID, width=1, borderRadius=5)
+            self.initialized = True  # Mark the instance as initialized
+
+            if self.content:
+                self.add_child(self.content)
+                self.add_child(self.title)
+            for action in self.actions:
+                self.add_child(action)
+
+    def css(self):
+        
+        
+        # Additional CSS for modal display
+        modal_css = (
+            f"{self.border.to_css()}"
+            f"background-color: {self.color};"
+            "padding: 15px;"
+            "position: fixed; "
+            "top: 50%; left: 50%; "
+            "transform: translate(-50%, -50%); "
+            "box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); "
+            "z-index: 1000;"
+        )
+        
+        return f"{modal_css}"
+
+    def to_html(self):
+        # Title HTML
+        title_html = self.title.to_html() if self.title else ""
+        
+        # Content HTML
+        content_html = f'<div style="margin-top: 4px;">{self.content.to_html()}</div>' if self.content else ""
+        
+        # Actions (buttons, etc.)
+        actions_html = "".join([action.to_html() for action in self.actions])
+
+        # Full dialog HTML
+        dialog_css = self.css()
+        return f'''
+        <div style="{dialog_css}">
+            {title_html}
+            {content_html}
+            <div class="dialog-actions">{actions_html}</div>
+        </div>
+        '''
+
+
+"""

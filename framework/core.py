@@ -22,6 +22,8 @@ import weakref
 class Framework:
     _instance = None
 
+    config = Config()
+
     @classmethod
     def instance(cls):
         if cls._instance is None:
@@ -38,7 +40,7 @@ class Framework:
         self.end_drawer = None
         self.bottom_sheet = None
         self.snack_bar = None
-        self.asset_server = AssetServer(directory='assets', port=8000)
+        self.asset_server = AssetServer(directory='assets', port=config.get('assets_server_port'))
         self.asset_server.start()
         self.id_manager = IDManager()  # Initialize IDManager
         self.widget_registry = {} # Initialize the widget registry

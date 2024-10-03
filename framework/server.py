@@ -3,6 +3,8 @@ import socketserver
 import threading
 import time
 
+
+
 class AssetServer(threading.Thread):
     def __init__(self, directory, port=8000):
         super().__init__()

@@ -53,7 +53,53 @@ class MyApp:
                 title=Text('Counter App'),
             ),
             body=Body(
-                child=self.counter_widget,  # Using the CounterWidget
+                child=Column(
+                    children=[
+                        self.counter_widget, # Using the CounterWidget
+                        Dialog(
+                            title=Text(
+                                'Dialog Title',
+                                style=TextStyle(
+                                    fontSize=14,
+                                    fontWeight='bold',
+
+                                )
+                            ),
+                            content=Text(
+                                "Dialog Content can be seen here Dialog Content can be seen here",
+                                style=TextStyle(
+                                    fontSize=10,
+                                    #fontWeight=10,
+
+                                )
+                            ),
+                            actions=[
+                                Padding(
+                                    EdgeInsets.LRTB(top=10, bottom=10),
+                                    child=Row(
+                                    mainAxisAlignment=MainAxisAlignment.SPACE_AROUND,
+                                    children=[
+                                        TextButton(
+                                    child=Text('Click Me'),
+                                    style=ButtonStyle(
+                                        backgroundColor=Colors.color('grey'),
+                                        foregroundColor=Colors.color('white')
+                                    )
+                                ),
+                                SizedBox(
+                                    width=10
+                                ),
+                                TextButton(
+                                    child=Text('Dont Click')
+                                )
+                                    ]
+                                )
+                                ),
+                                
+                            ]
+                        )
+                    ]
+                ) 
             ),
         )
         self.framework.set_root(scaffold)

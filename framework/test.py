@@ -1,15 +1,7 @@
+from config import Config
 
 
-class BorderStyle():
-    NONE = 'none'
-    DOTTED = 'dotted'
-    DASHED = 'dashed'
-    SOLID = 'solid'
-    DOUBLE ='double'
-    GROOVE = 'groove'
-    RIDGE = 'ridge'
-    INSET = 'inset'
-    OUTSET = 'outset'
-    HIDDEN = 'hidden'
+config = Config()
+  
 
-print(BorderStyle.HIDDEN)
+print(config.get('assets_server_port'))
