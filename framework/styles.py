@@ -115,9 +115,8 @@ class BoxConstraints:
         return " ".join(styles)
 
 class Colors:
-    @staticmethod
-    def color(color_name):
-        return color_name
+    def __getattr__(self, name):
+        return name
 
     @staticmethod
     def hex(hex_code):

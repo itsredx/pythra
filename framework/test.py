@@ -1,7 +1,11 @@
-from config import Config
+class Colors:
+    
+    def __getattr__(self, name):
+        return name
 
-
-config = Config()
-  
-
-print(config.get('assets_server_port'))
+# Usage
+colors = Colors()
+print(colors.blue)  # Outputs: blue
+print(colors.red)   # Outputs: red
+print(colors.green) # Outputs: green
+print(colors.any_color) # Outputs: any_color
