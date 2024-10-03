@@ -151,7 +151,7 @@ def Offset(x, y):
 class BoxDecoration:
     def __init__(self, color=None, border=None, borderRadius=None, boxShadow=None, transform=None, padding=None):
         if color:
-            self.color = Colors.color(color) if isinstance(color, str) and not color.startswith("#") else Colors.hex(color)
+            self.color = color 
         else:
             self.color = None
         self.border = border
@@ -316,11 +316,11 @@ class ButtonStyle:
     def to_css(self):
         styles = []
         if self.backgroundColor:
-            styles.append(f"background-color: {Colors.color(self.backgroundColor)};")
+            styles.append(f"background-color: {self.backgroundColor};")
         if self.foregroundColor:
-            styles.append(f"color: {Colors.color(self.foregroundColor)};")
+            styles.append(f"color: {self.foregroundColor};")
         if self.shadowColor:
-            styles.append(f"box-shadow: 0px 0px {self.elevation or 0}px {Colors.color(self.shadowColor)};")
+            styles.append(f"box-shadow: 0px 0px {self.elevation or 0}px {self.shadowColor};")
         if self.padding:
             styles.append(f"padding: {self.padding.to_css()};")
         if self.minimumSize:

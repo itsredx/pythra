@@ -82,8 +82,8 @@ class MyApp:
                                         TextButton(
                                     child=Text('Click Me'),
                                     style=ButtonStyle(
-                                        backgroundColor=Colors.color('grey'),
-                                        foregroundColor=Colors.color('white')
+                                        backgroundColor=Colors.grey,
+                                        foregroundColor=Colors.white
                                     )
                                 ),
                                 SizedBox(

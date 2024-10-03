@@ -707,7 +707,7 @@ class Scaffold(Widget):
                  bottomSheet=None, 
                  persistentFooterButtons=None,
                  snackBar=None,
-                 backgroundColor=Colors.color('white'),
+                 backgroundColor=Colors.white,
                  resizeToAvoidBottomInset=True,
                  extendBody=False,
                  extendBodyBehindAppBar=False,
@@ -880,7 +880,7 @@ class Drawer(Widget):
             cls._instance = super(Drawer, cls).__new__(cls)
         return cls._instance  # Return the singleton instance
 
-    def __init__(self, child, width=250, divider=None, borderRight= BorderSide(width=0.1, style=BorderStyle.SOLID), elevation='', padding=EdgeInsets.all(20), backgroundColor=Colors.color('white')):
+    def __init__(self, child, width=250, divider=None, borderRight= BorderSide(width=0.1, style=BorderStyle.SOLID), elevation='', padding=EdgeInsets.all(20), backgroundColor=Colors.white):
         # Only initialize the instance once
         if not hasattr(self, 'initialized'):
             super().__init__(widget_id=None)
@@ -930,7 +930,7 @@ class EndDrawer(Widget):
             cls._instance = super(EndDrawer, cls).__new__(cls)
         return cls._instance  # Return the singleton instance
 
-    def __init__(self, child, width=250, divider=None, borderLeft= BorderSide(width=0.1, style=BorderStyle.SOLID), elevation='', padding=EdgeInsets.all(20), backgroundColor=Colors.color('white')):
+    def __init__(self, child, width=250, divider=None, borderLeft= BorderSide(width=0.1, style=BorderStyle.SOLID), elevation='', padding=EdgeInsets.all(20), backgroundColor=Colors.white):
         # Only initialize the instance once
         if not hasattr(self, 'initialized'):
             super().__init__(widget_id=None)
@@ -976,7 +976,7 @@ class BottomSheet(Widget):
             cls._instance = super(BottomSheet, cls).__new__(cls)
         return cls._instance  # Return the singleton instance
         
-    def __init__(self, child, height=300, backgroundColor=Colors.color('white'), elevation='', padding=EdgeInsets.all(20), enableDrag=True):
+    def __init__(self, child, height=300, backgroundColor=Colors.white, elevation='', padding=EdgeInsets.all(20), enableDrag=True):
          # Only initialize the instance once
         if not hasattr(self, 'initialized'):
             super().__init__(widget_id=None)
@@ -1087,7 +1087,7 @@ class SnackBar(Widget):
         return cls._instance  # Return the singleton instance
 
 
-    def __init__(self, content, action=None, duration=3000, backgroundColor=Colors.color('grey'), padding=EdgeInsets.symmetric(horizontal=24, vertical=16)):
+    def __init__(self, content, action=None, duration=3000, backgroundColor=Colors.grey, padding=EdgeInsets.symmetric(horizontal=24, vertical=16)):
          # Only initialize the instance once
         if not hasattr(self, 'initialized'):    
             super().__init__(widget_id=None)
@@ -1144,7 +1144,7 @@ class SnackBarAction(Widget):
         return cls._instance  # Return the singleton instance
 
 
-    def __init__(self, label, onPressed, textColor=Colors.color('blue')):
+    def __init__(self, label, onPressed, textColor=Colors.blue):
         # Only initialize the instance once
         if not hasattr(self, 'initialized'): 
             super().__init__(widget_id=None)
@@ -1177,7 +1177,7 @@ class SnackBarAction(Widget):
 
 class Placeholder(Widget):
     def __init__(self, 
-                 color=Colors.color('gray'), 
+                 color=Colors.gray, 
                  stroke_width=2, 
                  height=100, 
                  width=100, 

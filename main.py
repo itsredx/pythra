@@ -78,7 +78,7 @@ class MyAppState(State):
                 margin=EdgeInsets.all(20),
                 constraints=BoxConstraints(max_width=300, max_height=300),
                 decoration=BoxDecoration(
-                    color=Colors.color('lightblue'),
+                    color=Colors.lightblue,
                     borderRadius=25,
                 )
             ),
@@ -88,7 +88,7 @@ class MyAppState(State):
                 margin=EdgeInsets.all(20),
                 constraints=BoxConstraints(max_width=300, max_height=300),
                 decoration=BoxDecoration(
-                    color=Colors.color('lightblue'),
+                    color=Colors.lightblue,
                     borderRadius=25,
                 )
             )
@@ -140,7 +140,7 @@ class MyAppState(State):
             content=Text("Item deleted"),
             action=snack_bar_action,
             duration=3,
-            backgroundColor=Colors.color("darkgrey"), 
+            backgroundColor=Colors.darkgrey, 
         ) 
         scaffold = Scaffold(
             appBar=AppBar(
@@ -172,13 +172,13 @@ class MyAppState(State):
                 ],
                 onTap=self.on_tab_selected,
                 currentIndex=self.currentIndex,
-                backgroundColor=Colors.color('white'),
+                backgroundColor=Colors.white,
                 elevation=10,
                 iconSize=30,
                 selectedFontSize=18,
                 unselectedFontSize=14,
-                selectedItemColor=Colors.color('blue'),
-                unselectedItemColor=Colors.color('grey'),
+                selectedItemColor=Colors.blue,
+                unselectedItemColor=Colors.grey,
                 showSelectedLabels=True,
                 showUnselectedLabels=True,
             ),
@@ -193,7 +193,7 @@ class MyAppState(State):
                     ]
                 ),
                 height=300,
-                backgroundColor=Colors.color("lightgrey"),
+                backgroundColor= Colors.lightgrey,
                 enableDrag=True
             ),
             snackBar=snack_bar
@@ -280,7 +280,7 @@ class MyApp:
                 margin=EdgeInsets.all(20),
                 constraints= BoxConstraints(max_width= 300, max_height=300),
                 decoration=BoxDecoration(
-                    color=Colors.color('lightblue'),
+                    color=Colors.lightblue,
                     borderRadius=25,
                 )
                 ),
@@ -290,7 +290,7 @@ class MyApp:
                 margin=EdgeInsets.all(20),
                 constraints= BoxConstraints(max_width= 300, max_height=300),
                 decoration=BoxDecoration(
-                    color=Colors.color('lightblue'),
+                    color=Colors.lightblue,
                     borderRadius=25,
                 )
                 )
@@ -334,7 +334,7 @@ class MyApp:
             content=Text("Item deleted"),
             action=snack_bar_action,
             duration=5000,
-            backgroundColor=Colors.color("darkgrey"),
+            backgroundColor=Colors.darkgrey,
         )
 
         scaffold = Scaffold(
@@ -364,14 +364,14 @@ class MyApp:
                 ],
                 onTap= self.on_tab_selected,
                 currentIndex=self.currentIndex,
-                #fixedColor=Colors.color('blue'),
-                backgroundColor=Colors.color('white'),
+                #fixedColor=Colors.blue,
+                backgroundColor=Colors.white,
                 elevation=10,
                 iconSize=30,
                 selectedFontSize=18,
                 unselectedFontSize=14,
-                selectedItemColor=Colors.color('blue'),
-                unselectedItemColor=Colors.color('grey'),
+                selectedItemColor=Colors.blue,
+                unselectedItemColor=Colors.grey,
                 showSelectedLabels=True,
                 showUnselectedLabels=False,
             ),
@@ -386,7 +386,7 @@ class MyApp:
                     ]
                 ),
                 height=300,
-                backgroundColor=Colors.color("lightgrey"),
+                backgroundColor=Colors.lightgrey,
                 enableDrag=True
             ),
             snackBar=snack_bar
