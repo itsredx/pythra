@@ -115,6 +115,7 @@ class BoxConstraints:
         return " ".join(styles)
 
 class Colors:
+    
     def __getattr__(self, name):
         return name
 

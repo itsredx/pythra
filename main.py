@@ -7,7 +7,7 @@ from framework.widgets import *
 from framework.styles import *
 from framework.state import StatefulWidget, State
 
-
+Colors = Colors()
 class MyAppState(State):
     def __init__(self):
         super().__init__()

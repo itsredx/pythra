@@ -5,6 +5,8 @@ from framework.widgets import *
 from framework.styles import *
 from framework.state import StatefulWidget, State
 
+Colors = Colors()
+
 class CounterState(State):
     def __init__(self):
         super().__init__()
@@ -82,8 +84,8 @@ class MyApp:
                                         TextButton(
                                     child=Text('Click Me'),
                                     style=ButtonStyle(
-                                        backgroundColor=Colors.grey,
-                                        foregroundColor=Colors.white
+                                        backgroundColor= Colors.grey ,
+                                        foregroundColor= Colors.white, 
                                     )
                                 ),
                                 SizedBox(

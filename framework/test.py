@@ -7,5 +7,5 @@ class Colors:
 colors = Colors()
 print(colors.blue)  # Outputs: blue
 print(colors.red)   # Outputs: red
-print(colors.green) # Outputs: green
+print(colors.grey) # Outputs: green
 print(colors.any_color) # Outputs: any_color

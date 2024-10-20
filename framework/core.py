@@ -136,8 +136,10 @@ class Framework:
             </html>
             """)
 
-        self.window = webview.create_window(title, html_file, js_api=self.api)
-        webview.start(debug=True)
+        self.window = webview.create_window(title, html_file, js_api=self.api, width=800, height=600,resizable=True, zoomable=True)
+        print("Debug:", 'True' )
+        
+        webview.start(debug=bool(config.get("Debug")))
         
 
     def collect_callbacks(self, widget):

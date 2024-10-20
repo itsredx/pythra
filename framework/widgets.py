@@ -10,6 +10,7 @@ from .config import Config
 config = Config()
 assets_dir = config.get('assets_dir', 'assets')
 port = config.get('assets_server_port')
+Colors = Colors()
 
 
 
@@ -611,13 +612,13 @@ class BottomNavigationBar(Widget):
                  onTap=None, 
                  currentIndex=0, 
                  fixedColor=None, 
-                 backgroundColor= Colors.color("white"), 
+                 backgroundColor= Colors.white , 
                  elevation=10, 
                  iconSize=30, 
                  selectedFontSize=18, 
                  unselectedFontSize=14, 
-                 selectedItemColor= Colors.color("blue"), 
-                 unselectedItemColor=Colors.color("grey"), 
+                 selectedItemColor= Colors.blue , 
+                 unselectedItemColor= Colors.grey ,
                  showSelectedLabels=True, 
                  showUnselectedLabels=False, 
                  landscapeLayout="centered"):
