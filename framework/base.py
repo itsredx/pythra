@@ -30,6 +30,25 @@ class Widget:
     def to_html(self):
         raise NotImplementedError("Each widget must implement the to_html method.")
 
+    def to_css(self):
+        """Generate CSS styles for this widget and its children."""
+        css_styles = []
+
+        # Add styles for the current widget
+        current_widget_css = ""
+        css_styles.append(current_widget_css)
+
+        # Collect CSS styles from child widgets
+        for child in self._children:
+            css_styles.append(child.to_css())
+
+        # Combine all styles into a single string
+        return "\n".join(css_styles)
+
+
+    def to_js(self):
+        return "Each widget should implement the to_js method for scripting."
+
     def set_parent(self, parent_widget):
         """Sets the parent of the current widget."""
         self._parent = parent_widget

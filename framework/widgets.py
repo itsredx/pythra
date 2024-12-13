@@ -15,7 +15,13 @@ Colors = Colors()
 
 
 class Container(Widget):
-    def __init__(self, child=None, padding=None, color=None, decoration=None, foregroundDecoration=None, width=None, height=None, constraints=None, margin=None, transform=None, alignment=None, clipBehavior=None):
+    shared_styles = {}  # Stores unique style definitions for shared CSS
+    shared_js = set()   # Tracks JS logic for optimization
+
+    def __init__(self, child=None, padding=None, color=None, decoration=None, 
+                 foregroundDecoration=None, width=None, height=None, 
+                 constraints=None, margin=None, transform=None, alignment=None, 
+                 clipBehavior=None):
         super().__init__(widget_id=None)
         self.child = child
         self.padding = padding
@@ -29,31 +35,107 @@ class Container(Widget):
         self.transform = transform
         self.alignment = alignment
         self.clipBehavior = clipBehavior
-        
-  
-    
-        self.add_child(self.child) if self.child else None # Register the child widget with the framework
 
+        # Generate a unique style key for deduplication
+        self.style_key = (
+            self.padding,
+            self.color,
+            self.decoration,
+            self.width,
+            self.height,
+            self.margin,
+            self.alignment,
+            self.clipBehavior,
+        )
+        if self.style_key not in Container.shared_styles:
+            # Assign a new shared class name for unique styles
+            self.css_class = f"shared-container-{len(Container.shared_styles)}"
+            Container.shared_styles[self.style_key] = self.css_class
+        else:
+            # Reuse the existing class for identical styles
+            self.css_class = Container.shared_styles[self.style_key]
+
+        # Register the child widget with the framework
+        if self.child:
+            self.add_child(self.child)
+
+    def to_css(self):
+        """Generate the shared CSS rules for the container's styles."""
+        css_rules = ""
+        for style_key, css_class in Container.shared_styles.items():
+            (padding, color, decoration, width, height, margin, alignment, 
+             clipBehavior) = style_key
+
+            padding_str = f'padding: {padding.to_css()};' if padding else ''
+            margin_str = f'margin: {margin.to_css()};' if margin else ''
+            width_str = f'width: {width}px;' if width else ''
+            height_str = f'height: {height}px;' if height else ''
+            color_str = f'background-color: {color};' if color else ''
+            decoration_str = decoration.to_css() if decoration else ''
+            clip_str = f'overflow: hidden;' if clipBehavior else ''
+            alignment_str = alignment.to_css() if alignment else ''
+
+            css_rules += f"""
+            .{css_class} {{
+                position: relative;
+                {padding_str}
+                {margin_str}
+                {width_str}
+                {height_str}
+                {color_str}
+                {decoration_str}
+                {alignment_str}
+                {clip_str}
+            }}
+            """
+            self.generate_foreground_css()
+
+        return css_rules
 
     def to_html(self):
-        padding_str = f'padding: {self.padding.to_css()};' if self.padding else ''
-        margin_str = f'margin: {self.margin.to_css()};' if self.margin else ''
-        width_str = f'width: {self.width}px;' if self.width else ''
-        height_str = f'height: {self.height}px;' if self.height else ''
-        color_str = f'background-color: {self.color};' if self.color else ''
-        decoration_str = self.decoration.to_css() if self.decoration else ''
-        foregroundDecoration_str = self.foregroundDecoration.to_css() if self.foregroundDecoration else ''
-        alignment_str = self.alignment.to_css() if self.alignment else ''
-        clip_str = f'overflow: hidden;' if self.clipBehavior else ''
-
+        """Generate the HTML for the container."""
         child_html = self.child.to_html() if self.child else ''
-
+        foreground_class = f"foreground-{self.widget_id()}" if self.foregroundDecoration else ''
+        
         return f"""
-        <div id="{self.widget_id()}" style='position: relative; {self.constraints.to_css()} {alignment_str} {padding_str} {margin_str} {width_str} {height_str} {color_str} {decoration_str} {clip_str}'>
+        <div id="{self.widget_id()}" class="{self.css_class} {foreground_class}">
             {child_html}
-            <div style='{foregroundDecoration_str} position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;'></div>
+            <div class="foreground-overlay"></div>
         </div>
         """
+
+    def to_js(self):
+        """Generate JavaScript for the container."""
+        # Add shared JS logic if not already added
+        if "click_logger" not in Container.shared_js:
+            Container.shared_js.add("click_logger")
+            return """
+            document.querySelectorAll('.container').forEach(function(element) {
+                element.addEventListener('click', function() {
+                    console.log("Container clicked: " + element.id);
+                });
+            });
+            """
+        return ""  # No additional JS for already shared logic
+
+    def generate_foreground_css(self):
+        """Generate CSS for the foregroundDecoration."""
+        if not self.foregroundDecoration:
+            return ""
+        foreground_css = self.foregroundDecoration.to_css()
+        return f"""
+        .foreground-{self.widget_id()} .foreground-overlay {{
+            {foreground_css}
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }}
+        """
+
+
 
 class Text(Widget):
     def __init__(self, data, key=None, style=None, textAlign=None, overflow=None, widget_id=None):
@@ -596,13 +678,13 @@ class AppBar(Widget):
         title_spacing = self.titleSpacing if self.titleSpacing else 10
 
         return f"""
-        <header id="{self.widget_id()}" style="{app_bar_style}">
+        <div id="{self.widget_id()}" class="app-bar" style="{app_bar_style}">
             <div style="{leading_css}">{leading_html}</div>
             <div style="flex: 1; margin-left: {title_spacing}px;">{title_html}</div>
             <div style="flex: 1; text-align: center;">{center_title}</div>
             <div style="{action_css}">{actions_html}</div>
             {bottom_html}
-        </header>
+        </div>
         """
 
 
@@ -663,7 +745,7 @@ class BottomNavigationBar(Widget):
             items_html += f"<div onclick='handleClickOnTap(\"{self.onTapName}\", {index})' style='{item_style}'>{item_html}</div>"
 
         return f"""
-        <div id="{self.widget_id()}" style='height: 60px; background-color: {self.backgroundColor}; box-shadow: 0 -2px 10px rgba(0,0,0,0.2); display: flex; justify-content: center; align-items: center;  position: relative; z-index: 1;'>
+        <div id="{self.widget_id()}" class="bottom-nav" id="bottomNav">
             {items_html}
         </div>
         """
@@ -810,15 +892,20 @@ class Scaffold(Widget):
 
 
         return f"""
-        <div id="{self.widget_id()}" style="flex: 1; display: flex; flex-direction: column; height: 100vh; {background_color_style}">
+        <div id="{self.widget_id()}" class="body">
             {appBar_html}
-            <div id="container" style="flex: 1; display: flex; overflow: hidden; position: relative; ">
-            {drawer_html}
-            <div id="{body_id}" style='flex: 1; overflow-y: auto; padding: 20px; margin-left: {margin_left}; margin-right: {margin_right}; transition: margin-left 0.3s ease;'>
-            {body_html}
+            <div class="drawer left" id="leftDrawer">
+                {drawer_html}
             </div>
-            {end_drawer_html}
+
+            <div class="drawer right" id="rightDrawer">
+                {end_drawer_html}
             </div>
+
+            <div id="{body_id}" class="content" id="content">
+                {body_html}
+            </div>
+
             {floating_action_button_html}
             {bottom_sheet_html}
             {snack_bar_html}

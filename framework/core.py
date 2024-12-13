@@ -14,6 +14,8 @@ from .server import AssetServer
 from .base import Widget
 from .state import StatefulWidget
 from .pyx.widget_registry import WidgetRegistry
+from .window import webwidget
+#import webview
 import weakref
 
 
@@ -32,9 +34,11 @@ class Framework:
 
 
     def __init__(self):
-        self.api = Api()
+        self.api = webwidget.Api()
         self.root_widget = None
+        self.id = 'id'
         self.window = None
+        self.frameless = True
         self.scaffold = None
         self.drawer = None
         self.end_drawer = None
@@ -113,50 +117,89 @@ class Framework:
             pass
             #self.update_content()
 
-    def run(self, title):
-        if not self.root_widget:
-            raise ValueError("Root widget not set. Use set_root() to define the root widget.")
-        
-        html_content = self.root_widget.to_html()
-        #print('From core.py in Framework.run() {HTML From First Run:',html_content, '}')
-        html_file = 'web/index.html'
-        os.makedirs('web', exist_ok=True)
-
-        with open(html_file, 'w') as f:
-            f.write(f"""
-            <html>
-            <head>
-                <title>{title}</title>
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-                <script src="main.js"></script>
-            </head>
-            <body style="margin: 0px; padding: 0px; display: flex; height: 100vh;">
-                {html_content}
-            </body>
-            </html>
-            """)
-
-        self.window = webview.create_window(title, html_file, js_api=self.api, width=800, height=600,resizable=True, zoomable=True)
-        print("Debug:", 'True' )
-        
-        webview.start(debug=bool(config.get("Debug")))
-        
-
     def collect_callbacks(self, widget):
         
         if hasattr(widget, 'onPressed') and widget.onPressed:
+            #print(widget.onPressed)
             self.api.register_callback(widget.onPressed, getattr(self, widget.onPressed))
         
         if hasattr(widget, 'children'):
             for child in widget.children:
                 self.collect_callbacks(child)
 
+    def run(self, title):
+        if not self.root_widget:
+            raise ValueError("Root widget not set. Use set_root() to define the root widget.")
+        
+        html_content = self.root_widget.to_html()
+        css_content = self.root_widget.to_css()
+        #print('From core.py in Framework.run() {HTML From First Run:',html_content, '}')
+        html_file = '/home/red-x/Documents/pythra/web/index.html'
+        css_file = '/home/red-x/Documents/pythra/web/styles.css'
+        os.makedirs('web', exist_ok=True)
+
+
+        if self.frameless:
+            with open(html_file, 'w') as f:
+                f.write(f"""
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>{title}</title>
+                    <link type="text/css" rel="stylesheet" href="styles.css">
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">      
+                    <script src="qwebchannel.js"></script>
+                    <script src="main.js"></script>
+                    <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
+                </head>
+                <body>
+                        {html_content}
+                </body>
+                </html>
+                """)
+
+            f.close()
+
+            with open(css_file, 'a') as c:
+                c.write(css_content)
+            c.close()
+
+        else:
+            with open(html_file, 'w') as f:
+                f.write(f"""
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>{title}</title>
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+                    <link type="text/css" rel="stylesheet" href="styles.css">
+                    <script src="qwebchannel.js"></script>
+                    <script src="main.js"></script>
+                    <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
+                </head>
+                <body>
+                    {html_content}
+                </body>
+                </html>
+                """)
+            f.close()
+
+            with open(css_file, 'a') as c:
+                c.write(css_content)
+            c.close()
+
+        self.window = webwidget.create_window(title, self.id, html_file=html_file, js_api=self.api, width=800, height=600,)
+        #print("Debug:", 'True' )
+        
+        webwidget.start(window=self.window, debug=bool(config.get("Debug")))
+        
+
     
     def body_margin(self):
         if self.body:
             script_2 = f'document.getElementById("body").style.marginLeft = "-250px";'
             script_1 = f'document.getElementById("body").style.marginRight = "-250px";'
-            self.window.evaluate_js(script_1, script_2)
+            self.window.evaluate_js(self.id, script_1, script_2)
     
 
     
@@ -198,26 +241,26 @@ class Framework:
             script_3 = f'document.getElementById("body").style.marginRight = "{margin_right}";'
             script_4 = f'document.getElementById("body").style.marginLeft = "{margin_left}"'
             
-            self.window.evaluate_js(script_1 + script_2 + script_3 + script_4)
+            self.window.evaluate_js(self.id, script_1 + script_2 + script_3 + script_4)
 
     def show_bottom_sheet(self):
         if self.bottom_sheet:
             self.bottom_sheet.is_open = True
             script = 'document.getElementById("bottomSheet").style.transform = "translateY(0)";'
-            self.window.evaluate_js(script)
+            self.window.evaluate_js(self.id, script)
 
     def hide_bottom_sheet(self):
         if self.bottom_sheet:
             self.bottom_sheet.is_open = False
             script = f'document.getElementById("bottomSheet").style.transform = "translateY(100%)";'
-            self.window.evaluate_js(script)
+            self.window.evaluate_js(self.id, script)
 
 
     def show_snack_bar(self):
         if self.snack_bar:
             self.snack_bar.is_visible = True
             script = 'document.getElementById("snackBar").style.display = "flex";'
-            self.window.evaluate_js(script)
+            self.window.evaluate_js(self.id, script)
             # Start a thread to hide the SnackBar after the specified duration
             threading.Thread(target=self._auto_hide_snack_bar, daemon=True).start()
 
@@ -230,7 +273,7 @@ class Framework:
         if self.snack_bar and self.snack_bar.is_visible:
             self.snack_bar.is_visible = False
             script = 'document.getElementById("snackBar").style.display = "none";'
-            self.window.evaluate_js(script)
+            self.window.evaluate_js(self.id, script)
 
 
     def update_content(self):
@@ -238,7 +281,7 @@ class Framework:
         if self.window:
             html_content = self.root_widget.to_html()
             script = f'document.body.innerHTML = `{html_content}`;'
-            self.window.evaluate_js(script)
+            self.window.evaluate_js(self.id, script)
 
     def update_widget_dub(self, widget_id, html_content):
         # Update the widget's HTML representation based on its ID
@@ -262,6 +305,6 @@ class Framework:
                                 console.log("Element with ID {widget_id} not found.");
                             }}
                             '''
-                self.window.evaluate_js(script)
+                self.window.evaluate_js(self.id, script)
             else:
                 print('Widget With ID: {widget_id} Not In Registry')

@@ -63,16 +63,17 @@ if __name__ == '__main__':
         'Draggable Dialog Window',
         html=dialog_html,
         width=400,
-        height=219+102,
+        height=193,
         resizable=False,
         frameless=True,  # No borders
         easy_drag=True,
         draggable=True,
         frameless_padding=40,
-        transparent=False,  # Make window background transparent
-        on_top=True,
+        transparent=True,  # Make window background transparent
+        #on_top=True,
+        #backend='qt',
         #js_api=api  # Register the API to allow window movement
     )
 
     # Start the webview window
-    webview.start(debug=True)
+    webview.start(debug=True, gui='qt')
