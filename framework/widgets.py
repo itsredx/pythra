@@ -63,8 +63,7 @@ class Container(Widget):
         """Generate the shared CSS rules for the container's styles."""
         css_rules = ""
         for style_key, css_class in Container.shared_styles.items():
-            (padding, color, decoration, width, height, margin, alignment, 
-             clipBehavior) = style_key
+            padding, color, decoration, width, height, margin, alignment, clipBehavior = style_key
 
             padding_str = f'padding: {padding.to_css()};' if padding else ''
             margin_str = f'margin: {margin.to_css()};' if margin else ''
@@ -88,21 +87,34 @@ class Container(Widget):
                 {clip_str}
             }}
             """
+            print("container to css class:", css_class)
             self.generate_foreground_css()
 
         return css_rules
 
     def to_html(self):
-        """Generate the HTML for the container."""
+        # Make sure no self.to_css() call is here
         child_html = self.child.to_html() if self.child else ''
         foreground_class = f"foreground-{self.widget_id()}" if self.foregroundDecoration else ''
-        
+
+        # Ensure the self.css_class derived in __init__ is used
+        if not hasattr(self, 'css_class'):
+            # Fallback or error handling if css_class wasn't set (shouldn't happen)
+            print(f"Warning: Container {self.widget_id()} missing css_class.")
+            effective_css_class = ""
+        else:
+            effective_css_class = self.css_class
+
         return f"""
-        <div id="{self.widget_id()}" class="{self.css_class} {foreground_class}">
+        <div id="{self.widget_id()}" class="{effective_css_class} {foreground_class}">
             {child_html}
             <div class="foreground-overlay"></div>
         </div>
         """
+
+    # The old to_css can be removed or kept for reference, but isn't called in the flow.
+    # The logic for generating a single rule needs to be in the framework helper
+    # like _create_container_css_rule
 
     def to_js(self):
         """Generate JavaScript for the container."""
@@ -138,6 +150,8 @@ class Container(Widget):
 
 
 class Text(Widget):
+    shared_styles = {}  # Stores unique style definitions for shared CSS
+
     def __init__(self, data, key=None, style=None, textAlign=None, overflow=None, widget_id=None):
         super().__init__(widget_id)
         self.data = data
@@ -146,126 +160,339 @@ class Text(Widget):
         self.textAlign = textAlign
         self.overflow = overflow
 
-    
-    def get_children(self):
-        return []  # SizedBox doesn't have children, so return an empty list
+        # Generate a unique style key for deduplication
+        self.style_key = (
+            self.style,
+            self.textAlign,
+            self.overflow,
+        )
+        if self.style_key not in Text.shared_styles:
+            # Assign a new shared class name for unique styles
+            self.css_class = f"shared-text-{len(Text.shared_styles)}"
+            Text.shared_styles[self.style_key] = self.css_class
+        else:
+            # Reuse the existing class for identical styles
+            self.css_class = Text.shared_styles[self.style_key]
 
-    def remove_all_children(self):
-        pass
+    def to_css(self):
+        """Generate the shared CSS rules for the text's styles."""
+        css_rules = ""
+        for style_key, css_class in Text.shared_styles.items():
+            style, textAlign, overflow = style_key
 
+            style_str = style.to_css() if style else ''
+            text_align_str = f"text-align: {textAlign};" if textAlign else ''
+            overflow_str = f"overflow: {overflow};" if overflow else ''
+
+            css_rules += f"""
+            .{css_class} {{
+                margin-top: 0px;
+                margin-bottom: 0px;
+                {style_str}
+                {text_align_str}
+                {overflow_str}
+            }}
+            """
+
+        return css_rules
 
     def to_html(self):
-        style = self.style.to_css()
-        text_align_str = self.textAlign if self.textAlign else ''
+        """Generate the HTML for the text."""
+        return f"""
+        <p id="{self.widget_id()}" class="{self.css_class}">
+            {self.data}
+        </p>
+        """
 
-        if self.textAlign:
-            style += f"text-align: {text_align_str};"
-        if self.overflow:
-            style += f"overflow: {self.overflow};"
-
-        return f"<p id='{self.widget_id()}' style='{style} margin-top: 0px; margin-bottom: 0px;'>{self.data}</p>"
+    def to_js(self):
+        """Generate JavaScript for the text widget."""
+        # Placeholder for any shared or specific JavaScript logic
+        return ""
 
 
 
 class TextButton(Widget):
+    shared_styles = {}  # Stores unique style definitions for shared CSS
+
     def __init__(self, child, onPressed=None, style=None):
         super().__init__(widget_id=None)
         self.child = child
         self.onPressed = onPressed
         self.style = style or ButtonStyle()
 
-        self.api = Api()
-        self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
+        # Generate a unique style key for deduplication
+        self.style_key = (
+            self.style,
+        )
 
-        self.add_child(self.child) if self.child else None # Register the child widget with the framework    
+        # Assign a shared class based on the style key
+        if self.style_key not in TextButton.shared_styles:
+            self.css_class = f"shared-textbutton-{len(TextButton.shared_styles)}"
+            TextButton.shared_styles[self.style_key] = self.css_class
+        else:
+            self.css_class = TextButton.shared_styles[self.style_key]
 
-    def to_html(self):
-        style = self.style.to_css()
-        button_id = f'{self.widget_id()}'
-        self.api.register_callback(self.onPressedName, self.onPressed)
-        return f"<button id='{button_id}' style='{style}' onclick='handleClick(\"{self.onPressedName}\")'>{self.child.to_html()}</button>"
+        # Register the child widget with the framework
+        self.add_child(self.child) if self.child else None
 
+    def to_css(self):
+        """Generate the shared CSS rules for text button styles."""
+        css_rules = ""
+        for style_key, css_class in TextButton.shared_styles.items():
+            style, = style_key
+            style_str = style.to_css() if style else ""
 
-class ElevatedButton(Widget):
-    def __init__(self, child, onPressed=None, style=None):
-        super().__init__(widget_id=None)
-        self.child = child
-        self.onPressed = onPressed
-        self.style = style or ButtonStyle()
+            css_rules += f"""
+            .{css_class} {{
+                {style_str}
+            }}
+            """
 
-        self.api = Api()
-        self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
-
-        self.add_child(self.child) if self.child else None # Register the child widget with the framework
-   
-
-    def to_html(self):
-        style = self.style.to_css()
-        button_id = f'{self.widget_id()}'
-        self.api.register_callback(self.onPressedName, self.onPressed)
-        return f"<button id='{button_id}' style='{style}' onclick='handleClick(\"{self.onPressedName}\")'>{self.child.to_html()}</button>"
-
-
-class IconButton(Widget):
-    def __init__(self, icon, onPressed=None, iconSize=None, style=None):
-        super().__init__(widget_id=None)
-        self.child = icon
-        self.onPressed = onPressed
-        self.iconSize = iconSize
-        self.style = style or ButtonStyle()
-        self.api = Api()
-
-        
-
-        self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
-
-        self.add_child(self.child) if self.child else None # Register the child widget with the framework
-    
-
+        return css_rules
 
     def to_html(self):
-        button_id = f"{self.widget_id()}"
-        style = self.style.to_css()
-        self.child.size = self.iconSize if self.iconSize and isinstance(self.child, Widget) else 16
-        child_html = self.child.to_html() if isinstance(self.child, Widget) else self.child
-
-        
-        self.api.register_callback(self.onPressedName, self.onPressed)
-
+        self.to_js()
+        """Generate the HTML for the text button."""
+        button_id = self.widget_id()
+        on_click_attr = f'onclick="handleClick(\'{self.onPressed.__name__}\')"' if self.onPressed else ''
+        child_html = self.child.to_html() if self.child else ''
         return f"""
-        <button id='{button_id}' style='{style} background-color: transparent;' onclick='handleClick("{self.onPressedName}")'>
+        <button id="{button_id}" class="{self.css_class}" {on_click_attr}>
             {child_html}
         </button>
         """
 
+    def to_js(self):
+        """Generate JavaScript for the button."""
+        if self.onPressed:
+            # Register the callback in the framework's API
+            Api().register_callback(self.onPressed.__name__, self.onPressed)
+        return ""
+
+
+class ElevatedButton(Widget):
+    shared_styles = {}  # Shared CSS for buttons
+
+    def __init__(self, child, onPressed=None, style=None):
+        super().__init__(widget_id=None)
+        self.child = child
+        self.onPressed = onPressed
+        self.style = style or ButtonStyle()
+
+        # Generate a unique style key for deduplication
+        self.style_key = (
+            self.style.backgroundColor,
+            self.style.foregroundColor,
+            self.style.overlayColor,
+            self.style.shadowColor,
+            self.style.elevation,
+            self.style.padding,
+            self.style.minimumSize,
+            self.style.side,
+            self.style.shape,
+            self.style.textStyle,
+            self.style.alignment,
+            self.style.icon,
+        )
+
+        # Assign a shared CSS class based on the style key
+        if self.style_key not in ElevatedButton.shared_styles:
+            self.css_class = f"shared-elevatedbutton-{len(ElevatedButton.shared_styles)}"
+            ElevatedButton.shared_styles[self.style_key] = self.css_class
+        else:
+            self.css_class = ElevatedButton.shared_styles[self.style_key]
+
+        # Register the child widget
+        self.add_child(self.child) if self.child else None
+
+    def to_css(self):
+        """Generate the shared CSS rules for ElevatedButton styles."""
+        css_rules = ""
+        for style_key, css_class in ElevatedButton.shared_styles.items():
+            style = ButtonStyle(*style_key)  # Recreate ButtonStyle from the style key
+            style_str = style.to_css() if style else ""
+
+            css_rules += f"""
+            .{css_class} {{
+                {style_str}
+            }}
+            """
+        return css_rules
+
+    def to_html(self):
+        self.to_js()
+        """Generate the HTML for the ElevatedButton."""
+        button_id = self.widget_id()
+        on_click_attr = f'onclick="handleClick(\'{self.onPressed.__name__}\')"' if self.onPressed else ''
+        child_html = self.child.to_html() if self.child else ''
+        return f"""
+        <button id="{button_id}" class="{self.css_class}" {on_click_attr}>
+            {child_html}
+        </button>
+        """
+
+    def to_js(self):
+        """Generate JavaScript for the button."""
+        if self.onPressed:
+            Api().register_callback(self.onPressed.__name__, self.onPressed)
+        return ""
+
+
+class IconButton(Widget):
+    shared_styles = {}  # Shared CSS for IconButton styles
+
+    def __init__(self, icon, onPressed=None, iconSize=None, style=None):
+        super().__init__(widget_id=None)
+        self.child = icon
+        self.onPressed = onPressed
+        self.iconSize = iconSize or 16
+        self.style = style or ButtonStyle()
+
+        # Generate a unique style key for deduplication
+        self.style_key = (
+            self.style.backgroundColor,
+            self.style.foregroundColor,
+            self.style.overlayColor,
+            self.style.shadowColor,
+            self.style.elevation,
+            self.style.padding,
+            self.style.minimumSize,
+            self.style.side,
+            self.style.shape,
+            self.style.textStyle,
+            self.style.alignment,
+            self.style.icon,
+        )
+
+        # Assign a shared CSS class based on the style key
+        if self.style_key not in IconButton.shared_styles:
+            self.css_class = f"shared-iconbutton-{len(IconButton.shared_styles)}"
+            IconButton.shared_styles[self.style_key] = self.css_class
+        else:
+            self.css_class = IconButton.shared_styles[self.style_key]
+
+        # Register the child widget
+        self.add_child(self.child) if self.child else None
+
+    def to_css(self):
+        
+        """Generate the shared CSS rules for IconButton styles."""
+        css_rules = ""
+        for style_key, css_class in IconButton.shared_styles.items():
+            style = ButtonStyle(*style_key)  # Recreate ButtonStyle from the style key
+            style_str = style.to_css() if style else ""
+
+            css_rules += f"""
+            .{css_class} {{
+                {style_str}
+                background-color: transparent; 
+            }}
+            """
+        return css_rules
+
+    def to_html(self):
+        self.to_js()
+        self.child.size = self.iconSize if self.iconSize and isinstance(self.child, Widget) else 16
+
+        """Generate the HTML for the IconButton."""
+        button_id = self.widget_id()
+        on_click_attr = f'onclick="handleClick(\'{self.onPressed.__name__}\')"' if self.onPressed else ''
+        child_html = self.child.to_html() if isinstance(self.child, Widget) else self.child
+
+        return f"""
+        <button id="{button_id}" class="{self.css_class}" {on_click_attr}>
+            {child_html}
+        </button>
+        """
+
+    def to_js(self):
+        """Generate JavaScript for the button."""
+        if self.onPressed:
+            Api().register_callback(self.onPressed.__name__, self.onPressed)
+        return ""
+
+
 class FloatingActionButton(Widget):
-    def __init__(self, child=None, onPressed=None, key=None):
+    shared_styles = {}  # Shared CSS for FloatingActionButton styles
+
+    def __init__(self, child=None, onPressed=None, key=None, style=None):
         super().__init__(widget_id=None)
         self.child = child
         self.onPressed = onPressed
         self.key = key
+        self.style = style or ButtonStyle()
 
-        self.api = Api()
-        self.onPressedName = self.onPressed.__name__ if self.onPressed else ''
+        # Generate a unique style key for deduplication
+        self.style_key = (
+            self.style.backgroundColor,
+            self.style.foregroundColor,
+            self.style.shadowColor,
+            self.style.elevation,
+            self.style.padding,
+            self.style.shape,
+        )
 
-        self.add_child(self.child) if self.child else None # Register the child widget with the framework
+        # Assign a shared CSS class based on the style key
+        if self.style_key not in FloatingActionButton.shared_styles:
+            self.css_class = f"shared-fab-{len(FloatingActionButton.shared_styles)}"
+            FloatingActionButton.shared_styles[self.style_key] = self.css_class
+        else:
+            self.css_class = FloatingActionButton.shared_styles[self.style_key]
+
+        # Register the child widget
+        self.add_child(self.child) if self.child else None
+
+    def to_css(self):
+        """Generate the shared CSS rules for FloatingActionButton styles."""
+        css_rules = ""
+        for style_key, css_class in FloatingActionButton.shared_styles.items():
+            style = ButtonStyle(*style_key)  # Recreate ButtonStyle from the style key
+            style_str = style.to_css() if style else ""
+
+            css_rules += f"""
+            .{css_class} {{
+                {style_str}
+                position: fixed;
+                bottom: 16px;
+                right: 16px;
+                border-radius: 50%;
+                width: 56px;
+                height: 56px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            }}
+            """
+        return css_rules
 
     def to_html(self):
-        self.api.register_callback(self.onPressedName, self.onPressed)
+        self.to_js()
+        """Generate the HTML for the FloatingActionButton."""
+        button_id = self.widget_id()
+        on_click_attr = f'onclick="handleClick(\'{self.onPressed.__name__}\')"' if self.onPressed else ''
+        child_html = self.child.to_html() if isinstance(self.child, Widget) else self.child or ""
 
-        onClick = f"onclick='handleClick(\"{self.onPressedName}\")'" if self.onPressed else ""
-        
         return f"""
-        <button id='{self.widget_id()}' style="position: fixed; bottom: 16px; right: 16px; border-radius: 50%; width: 56px; height: 56px; background-color: #f50057; color: white; border: none; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2);" {onClick}>
-            {self.child.to_html() if self.child else ''}
+        <button id="{button_id}" class="{self.css_class}" {on_click_attr}>
+            {child_html}
         </button>
         """
+
+    def to_js(self):
+        """Generate JavaScript for the button."""
+        if self.onPressed:
+            Api().register_callback(self.onPressed.__name__, self.onPressed)
+        return ""
+
  
 
 class Column(Widget):
-    def __init__(self, children=[], key=None, mainAxisAlignment=MainAxisAlignment.START, mainAxisSize= MainAxisSize.MAX, crossAxisAlignment=CrossAxisAlignment.CENTER, textDirection=TextDirection.LTR, verticalDirection= VerticalDirection.DOWN, textBaseline=TextBaseline.alphabetic, widget_id=None):
-        self.children = children
+    shared_styles = {}  # Shared CSS for Column styles
+
+    def __init__(self, children=None, key=None, mainAxisAlignment=MainAxisAlignment.START, mainAxisSize=MainAxisSize.MAX, crossAxisAlignment=CrossAxisAlignment.CENTER, textDirection=TextDirection.LTR, verticalDirection=VerticalDirection.DOWN, textBaseline=TextBaseline.alphabetic):
         super().__init__(widget_id=None)
+        self.children = children or []
         self.key = key
         self.mainAxisAlignment = mainAxisAlignment
         self.mainAxisSize = mainAxisSize
@@ -274,42 +501,76 @@ class Column(Widget):
         self.verticalDirection = verticalDirection
         self.textBaseline = textBaseline
 
-        
-
-        # Loop over self.children and add them to the widget tree
-        for child in self.children:
-            self.add_child(child) if child else None # Use the add_child method to manage parent-child relationships
-
-        #("The list of added children: ", self.get_children())  # Check if children were added properly
-       
-
-    
-
-    def to_html(self):
-        children_html = ''.join([child.to_html() for child in self.children])
-
-        # CSS styles based on properties
-        styles = (
-            f"display: flex; flex-direction: column; "
-            f"justify-content: {self.mainAxisAlignment}; "
-            f"align-items: {self.crossAxisAlignment}; "
-            f"direction: {self.textDirection}; "
-            f"vertical-align: {self.textBaseline};"
+        # Generate a unique style key for deduplication
+        self.style_key = (
+            self.mainAxisAlignment,
+            self.mainAxisSize,
+            self.crossAxisAlignment,
+            self.textDirection,
+            self.verticalDirection,
+            self.textBaseline,
         )
 
-        if self.mainAxisSize == 'min':
-            styles += "height: auto;"
-        elif self.mainAxisSize == 'max':
-            styles += "width: 100%;"
+        # Assign a shared CSS class based on the style key
+        if self.style_key not in Column.shared_styles:
+            self.css_class = f"shared-column-{len(Column.shared_styles)}"
+            Column.shared_styles[self.style_key] = self.css_class
+        else:
+            self.css_class = Column.shared_styles[self.style_key]
 
-        return f"<div id='{self.widget_id()}' style='{styles}'>{children_html}</div>"
+        # Add children widgets
+        for child in self.children:
+            self.add_child(child) if child else None  # Register each child widget
+
+    def to_css(self):
+        """Generate the shared CSS rules for Column styles."""
+        css_rules = ""
+        for style_key, css_class in Column.shared_styles.items():
+            (
+                mainAxisAlignment,
+                mainAxisSize,
+                crossAxisAlignment,
+                textDirection,
+                verticalDirection,
+                textBaseline,
+            ) = style_key
+
+            # Build CSS for the specific style key
+            styles = (
+                f"display: flex; "
+                f"flex-direction: column; "
+                f"justify-content: {mainAxisAlignment}; "
+                f"align-items: {crossAxisAlignment}; "
+                f"direction: {textDirection}; "
+                f"vertical-align: {textBaseline};"
+            )
+            if mainAxisSize == 'min':
+                styles += "height: auto;"
+            elif mainAxisSize == 'max':
+                styles += "width: 100%;"
+
+            css_rules += f"""
+            .{css_class} {{
+                {styles}
+            }}
+            """
+        return css_rules
+
+    def to_html(self):
+        """Generate HTML for the Column widget."""
+        children_html = ''.join([child.to_html() for child in self.children])
+
+        return f"<div id='{self.widget_id()}' class='{self.css_class}'>{children_html}</div>"
+
 
 
 
 class Row(Widget):
-    def __init__(self, children=[], key=None, mainAxisAlignment=MainAxisAlignment.START, mainAxisSize=MainAxisSize.MAX, crossAxisAlignment=CrossAxisAlignment.CENTER, textDirection=TextDirection.LTR, verticalDirection= VerticalDirection.DOWN, textBaseline = TextBaseline.alphabetic):
+    shared_styles = {}  # Shared CSS for Row styles
+
+    def __init__(self, children=None, key=None, mainAxisAlignment=MainAxisAlignment.START, mainAxisSize=MainAxisSize.MAX, crossAxisAlignment=CrossAxisAlignment.CENTER, textDirection=TextDirection.LTR, verticalDirection=VerticalDirection.DOWN, textBaseline=TextBaseline.alphabetic):
         super().__init__(widget_id=None)
-        self.children = children
+        self.children = children or []
         self.key = key
         self.mainAxisAlignment = mainAxisAlignment
         self.mainAxisSize = mainAxisSize
@@ -318,36 +579,71 @@ class Row(Widget):
         self.verticalDirection = verticalDirection
         self.textBaseline = textBaseline
 
-
-        # Loop over self.children and add them to the widget tree
-        for child in self.children:
-            self.add_child(child) if child else None # Use the add_child method to manage parent-child relationships
-
-        #print("The list of added children: ", self.get_children())  # Check if children were added properly
-
-    
-
-    def to_html(self):
-        children_html = ''.join([child.to_html() for child in self.children])
-
-        # CSS styles based on properties
-        styles = (
-            f"display: flex; flex-direction: row; "
-            f"justify-content: {self.mainAxisAlignment}; "
-            f"align-items: {self.crossAxisAlignment}; "
-            f"direction: {self.textDirection}; "
-            f"vertical-align: {self.textBaseline};"
+        # Generate a unique style key for deduplication
+        self.style_key = (
+            self.mainAxisAlignment,
+            self.mainAxisSize,
+            self.crossAxisAlignment,
+            self.textDirection,
+            self.verticalDirection,
+            self.textBaseline,
         )
 
-        if self.mainAxisSize == 'min':
-            styles += "width: auto;"
-        elif self.mainAxisSize == 'max':
-            styles += "width: 100%;"
+        # Assign a shared CSS class based on the style key
+        if self.style_key not in Row.shared_styles:
+            self.css_class = f"shared-row-{len(Row.shared_styles)}"
+            Row.shared_styles[self.style_key] = self.css_class
+        else:
+            self.css_class = Row.shared_styles[self.style_key]
 
-        return f"<div id='{self.widget_id()}' style='{styles}'>{children_html}</div>"
-        
+        # Add children widgets
+        for child in self.children:
+            self.add_child(child) if child else None  # Register each child widget
+
+    def to_css(self):
+        """Generate the shared CSS rules for Row styles."""
+        css_rules = ""
+        for style_key, css_class in Row.shared_styles.items():
+            (
+                mainAxisAlignment,
+                mainAxisSize,
+                crossAxisAlignment,
+                textDirection,
+                verticalDirection,
+                textBaseline,
+            ) = style_key
+
+            # Build CSS for the specific style key
+            styles = (
+                f"display: flex; "
+                f"flex-direction: row; "
+                f"justify-content: {mainAxisAlignment}; "
+                f"align-items: {crossAxisAlignment}; "
+                f"direction: {textDirection}; "
+                f"vertical-align: {textBaseline};"
+            )
+            if mainAxisSize == 'min':
+                styles += "width: auto;"
+            elif mainAxisSize == 'max':
+                styles += "width: 100%;"
+
+            css_rules += f"""
+            .{css_class} {{
+                {styles}
+            }}
+            """
+        return css_rules
+
+    def to_html(self):
+        """Generate HTML for the Row widget."""
+        children_html = ''.join([child.to_html() for child in self.children])
+
+        return f"<div id='{self.widget_id()}' class='{self.css_class}'>{children_html}</div>"
+    
 
 class Image(Widget):
+    shared_styles = {}  # Shared CSS for Image styles
+
     def __init__(self, image, width=None, height=None, fit=ImageFit.CONTAIN, alignment='center'):
         super().__init__(widget_id=None)
         self.image = image
@@ -356,15 +652,46 @@ class Image(Widget):
         self.fit = fit
         self.alignment = alignment
 
+        # Generate a unique style key for deduplication
+        self.style_key = (self.fit, self.width, self.height, self.alignment)
 
+        # Assign a shared CSS class based on the style key
+        if self.style_key not in Image.shared_styles:
+            self.css_class = f"shared-image-{len(Image.shared_styles)}"
+            Image.shared_styles[self.style_key] = self.css_class
+        else:
+            self.css_class = Image.shared_styles[self.style_key]
+
+        # Register the image as a child widget
         self.add_child(self.image) if self.image else None
 
-    
+    def to_css(self):
+        """Generate the shared CSS rules for Image styles."""
+        css_rules = ""
+        for style_key, css_class in Image.shared_styles.items():
+            fit, width, height, alignment = style_key
+
+            # Build CSS for the specific style key
+            styles = (
+                f"object-fit: {fit}; "
+                f"width: {width}px; " if width else "" +
+                f"height: {height}px; " if height else "" +
+                f"display: flex; "
+                f"justify-content: center; "
+                f"align-items: {alignment};"
+            )
+
+            css_rules += f"""
+            .{css_class} {{
+                {styles}
+            }}
+            """
+        return css_rules
 
     def to_html(self):
+        """Generate HTML for the Image widget."""
         src = self.image.get_source()
-        style = f"object-fit: {self.fit}; width: {self.width}px; height: {self.height}px; display: flex; justify-content: center; align-items: center;"
-        return f"<img id='{self.widget_id()}' src='{src}' style='{style}' />"
+        return f"<img id='{self.widget_id()}' src='{src}' class='{self.css_class}' />"
 
 class AssetImage:
     
@@ -384,32 +711,76 @@ class NetworkImage:
 
 
 class Icon(Widget):
+    shared_styles = {}  # Shared CSS for Icon styles
+
     def __init__(self, icon_name=None, custom_icon=None, size=16, color=None):
         super().__init__(widget_id=None)
         self.icon_name = icon_name
         self.custom_icon = custom_icon
         self.size = size
         self.color = color
-        
+
+        # Generate a unique style key for deduplication
+        self.style_key = (
+                    self.size, 
+                    self.color
+            )
+
+        # Assign a shared CSS class based on the style key
+        if self.style_key not in Icon.shared_styles:
+            # Assign a new shared class name for unique styles
+            self.css_class = f"shared-icon-{len(Icon.shared_styles)}"
+            Icon.shared_styles[self.style_key] = self.css_class
+        else:
+            # Reuse the existing class for identical styles
+            self.css_class = Icon.shared_styles[self.style_key]
+
     def get_children(self):
-        return []  # Icon doesn't have children, so return an empty list
+        """Icon doesn't have children, so return an empty list."""
+        return []
 
     def remove_all_children(self):
+        """Icon has no children, so this is a no-op."""
         pass
 
+    def to_css(self):
+        """Generate the shared CSS rules for Icon styles."""
+        css_rules = ""
+        
+        for style_key, css_class in Icon.shared_styles.items():
+            size, color = style_key
+
+            # Build CSS for the specific style key
+            styles = (
+                f"font-size: {size}px; "
+                f"width: {self.size}px;"
+                f"height: {self.size}px;"
+                f"{f'color: {color};' if color else ''}"
+            )
+
+            css_rules += f"""
+            .{self.css_class} {{
+                {styles}
+            }}
+            """
+        return css_rules
 
     def to_html(self):
+        """Generate HTML for the Icon widget."""
         if self.custom_icon:
+            # Handle custom icons as image sources
             src = AssetImage(self.custom_icon).get_source()
-            return f"<img src='{src}' style='width: {self.size}px; height: {self.size}px; color: {self.color};' />"
+            return f"<img id='{self.widget_id()}' src='{src}' class='{self.css_class}' />"
         else:
             # Use a CDN for predefined icons, e.g., FontAwesome
-            color = f"color: {self.color};" if self.color != None else ''
-            return f"<i id='{self.widget_id()}' class='fa fa-{self.icon_name}' style='font-size: {self.size}px; {color}'></i>"
+            return f"<i id='{self.widget_id()}' class='fa fa-{self.icon_name} {self.css_class}'></i>"
+
 
 
 
 class ListView(Widget):
+    shared_styles = {}  # Shared CSS for ListView configurations
+
     def __init__(self, children, padding=None, scrollDirection=Axis.VERTICAL, reverse=False, primary=True, physics=ScrollPhysics.ALWAYS_SCROLLABLE, shrinkWrap=False, itemExtent=None, cacheExtent=None, semanticChildCount=None):
         super().__init__(widget_id=None)
         self.children = children
@@ -423,43 +794,84 @@ class ListView(Widget):
         self.cacheExtent = cacheExtent
         self.semanticChildCount = semanticChildCount
 
-        # Loop over self.children and add them to the widget tree
+        # Add children widgets to the tree
         for child in self.children:
-            self.add_child(child) if child else None  # Use the add_child method to manage parent-child relationships
+            self.add_child(child) if child else None
 
-        #print("The list of added children: ", self.get_children())  # Check if children were added properly
+        # Generate a unique style key
+        self.style_key = (
+            self.padding.to_css(),
+            self.scrollDirection,
+            self.reverse,
+            self.primary,
+            self.physics,
+            self.itemExtent,
+            self.cacheExtent,
+        )
 
+        # Assign a shared CSS class based on the style key
+        if self.style_key not in ListView.shared_styles:
+            self.css_class = f"shared-listview-{len(ListView.shared_styles)}"
+            ListView.shared_styles[self.style_key] = self.css_class
+        else:
+            self.css_class = ListView.shared_styles[self.style_key]
 
+    def to_css(self):
+        """Generate shared CSS rules for ListView."""
+        css_rules = ""
+        for style_key, css_class in ListView.shared_styles.items():
+            (padding, scrollDirection, reverse, primary, physics, itemExtent, cacheExtent) = style_key
 
-    
+            # Convert style attributes to CSS
+            scroll_direction_style = "flex-direction: column;" if scrollDirection == Axis.VERTICAL else "flex-direction: row;"
+            reverse_style = "flex-direction: column-reverse;" if reverse else ""
+            primary_style = (
+                "overflow-y: auto;" if scrollDirection == Axis.VERTICAL and primary
+                else "overflow-x: auto;" if scrollDirection == Axis.HORIZONTAL and primary
+                else ""
+            )
+            padding_style = f"padding: {padding};"
+            physics_style = ""
+            if physics == ScrollPhysics.BOUNCING:
+                physics_style = "overflow: scroll; -webkit-overflow-scrolling: touch;"
+            elif physics == ScrollPhysics.CLAMPING:
+                physics_style = "overflow: hidden;"
+            item_extent_style = f"flex-basis: {itemExtent}px;" if itemExtent else ""
+            cache_extent_style = f"scroll-margin-top: {cacheExtent}px;" if cacheExtent else ""
 
+            # Build the full CSS rule
+            css_rules += f"""
+            .{css_class} {{
+                display: flex;
+                {scroll_direction_style}
+                {reverse_style}
+                {primary_style}
+                {padding_style}
+                {physics_style}
+                {cache_extent_style}
+                height: 100%;
+                width: 100%;
+            }}
+            """
+        return css_rules
 
     def to_html(self):
-        scroll_direction_style = "flex-direction: column;" if self.scrollDirection == Axis.VERTICAL else "flex-direction: row;"
-        reverse_style = "flex-direction: column-reverse;" if self.reverse else ""
-        primary_style = "overflow-y: auto;" if self.scrollDirection == Axis.VERTICAL and self.primary else "overflow-x: auto;" if self.scrollDirection == Axis.HORIZONTAL and self.primary else ""
-        padding_style = f"padding: {self.padding.to_css()};"
-        
-        physics_style = ""
-        if self.physics == ScrollPhysics.BOUNCING:
-            physics_style = "overflow: scroll; -webkit-overflow-scrolling: touch;"
-        elif self.physics == ScrollPhysics.CLAMPING:
-            physics_style = "overflow: hidden;"
-
-        item_extent_style = f"flex-basis: {self.itemExtent}px;" if self.itemExtent else ""
-        cache_extent_style = f"scroll-margin-top: {self.cacheExtent}px;" if self.cacheExtent else ""
-
-        children_html = ''.join([f"<div style='flex: none; {item_extent_style}'>{child.to_html()}</div>" for child in self.children])
-
+        """Generate HTML for ListView."""
+        children_html = ''.join(
+            [f"<div style='flex: none; {f'flex-basis: {self.itemExtent}px;' if self.itemExtent else ''}'>{child.to_html()}</div>" for child in self.children]
+        )
         semantic_child_count_attr = f"aria-setsize='{self.semanticChildCount}'" if self.semanticChildCount else ""
 
         return f"""
-        <div id="{self.widget_id()}" style="display: flex; {scroll_direction_style} {reverse_style} {primary_style} {padding_style} {physics_style} {cache_extent_style}; height: 100%; width: 100%;" {semantic_child_count_attr}>
+        <div id="{self.widget_id()}" class="{self.css_class}" {semantic_child_count_attr}>
             {children_html}
         </div>
         """
 
+
 class GridView(Widget):
+    shared_styles = {}  # Shared CSS for GridView configurations
+
     def __init__(self, children, padding=None, scrollDirection=Axis.VERTICAL, reverse=False, primary=True, physics=ScrollPhysics.ALWAYS_SCROLLABLE, shrinkWrap=False, crossAxisCount=2, mainAxisSpacing=0, crossAxisSpacing=0, childAspectRatio=1.0):
         super().__init__(widget_id=None)
         self.children = children
@@ -474,40 +886,93 @@ class GridView(Widget):
         self.crossAxisSpacing = crossAxisSpacing
         self.childAspectRatio = childAspectRatio
 
-
-    
-        # Loop over self.children and add them to the widget tree
+        # Add children to the widget tree
         for child in self.children:
-            self.add_child(child) if child else None  # Use the add_child method to manage parent-child relationships
+            self.add_child(child) if child else None
 
-        #print("The list of added children: ", self.get_children())  # Check if children were added properly
+        # Generate unique style key for shared CSS
+        self.style_key = (
+            self.padding.to_css(),
+            self.scrollDirection,
+            self.reverse,
+            self.primary,
+            self.physics,
+            self.crossAxisCount,
+            self.mainAxisSpacing,
+            self.crossAxisSpacing,
+            self.childAspectRatio,
+        )
 
+        # Assign shared CSS class
+        if self.style_key not in GridView.shared_styles:
+            self.css_class = f"shared-gridview-{len(GridView.shared_styles)}"
+            GridView.shared_styles[self.style_key] = self.css_class
+        else:
+            self.css_class = GridView.shared_styles[self.style_key]
 
+    def to_css(self):
+        """Generate shared CSS rules for GridView."""
+        css_rules = ""
+        for style_key, css_class in GridView.shared_styles.items():
+            (
+                padding, scrollDirection, reverse, primary, physics,
+                crossAxisCount, mainAxisSpacing, crossAxisSpacing, childAspectRatio
+            ) = style_key
+
+            # Convert attributes to CSS
+            scroll_direction_style = "flex-direction: column;" if scrollDirection == Axis.VERTICAL else "flex-direction: row;"
+            reverse_style = "flex-direction: column-reverse;" if reverse else ""
+            primary_style = (
+                "overflow-y: auto;" if scrollDirection == Axis.VERTICAL and primary
+                else "overflow-x: auto;" if scrollDirection == Axis.HORIZONTAL and primary
+                else ""
+            )
+            padding_style = f"padding: {padding};"
+            physics_style = ""
+            if physics == ScrollPhysics.BOUNCING:
+                physics_style = "overflow: scroll; -webkit-overflow-scrolling: touch;"
+            elif physics == ScrollPhysics.CLAMPING:
+                physics_style = "overflow: hidden;"
+            grid_template_columns = f"repeat({crossAxisCount}, 1fr);"
+            grid_gap = f"{mainAxisSpacing}px {crossAxisSpacing}px;"
+
+            css_rules += f"""
+            .{css_class} {{
+                display: flex;
+                {scroll_direction_style}
+                {reverse_style}
+                {primary_style}
+                {padding_style}
+                {physics_style}
+                height: 100%;
+                width: 100%;
+            }}
+            .{css_class} .grid-container {{
+                display: grid;
+                grid-template-columns: {grid_template_columns}
+                gap: {grid_gap};
+                width: 100%;
+            }}
+            .{css_class} .grid-item {{
+                flex: 1;
+                aspect-ratio: {childAspectRatio};
+            }}
+            """
+        return css_rules
 
     def to_html(self):
-        scroll_direction_style = "flex-direction: column;" if self.scrollDirection == Axis.VERTICAL else "flex-direction: row;"
-        reverse_style = "flex-direction: column-reverse;" if self.reverse else ""
-        primary_style = "overflow-y: auto;" if self.scrollDirection == Axis.VERTICAL and self.primary else "overflow-x: auto;" if self.scrollDirection == Axis.HORIZONTAL and self.primary else ""
-        padding_style = f"padding: {self.padding.to_css()};"
-        grid_template_columns = f"repeat({self.crossAxisCount}, 1fr)"
-        grid_gap = f"{self.mainAxisSpacing}px {self.crossAxisSpacing}px"
-        
-        # Apply scroll physics styles
-        physics_style = ""
-        if self.physics == ScrollPhysics.BOUNCING:
-            physics_style = "overflow: scroll; -webkit-overflow-scrolling: touch;"
-        elif self.physics == ScrollPhysics.CLAMPING:
-            physics_style = "overflow: hidden;"
-
-        children_html = ''.join([f"<div style='flex: 1; aspect-ratio: {self.childAspectRatio};'>{child.to_html()}</div>" for child in self.children])
-
+        """Generate HTML for GridView."""
+        children_html = ''.join(
+            [f"<div class='grid-item'>{child.to_html()}</div>" for child in self.children]
+        )
         return f"""
-        <div id="{self.widget_id()}" style="display: flex; {scroll_direction_style} {reverse_style} {primary_style} {padding_style} {physics_style}; height: 100%; width: 100%;">
-            <div style="display: grid; grid-template-columns: {grid_template_columns}; gap: {grid_gap}; width: 100%;">
+        <div id="{self.widget_id()}" class="{self.css_class}" role="grid">
+            <div class="grid-container">
                 {children_html}
             </div>
         </div>
         """
+
           
 class Stack(Widget):
     def __init__(self, children, alignment=Alignment.top_left(), textDirection=TextDirection.LTR, fit=StackFit.loose, clipBehavior=ClipBehavior.NONE, overflow=Overflow.VISIBLE, key=None):
@@ -520,13 +985,9 @@ class Stack(Widget):
         self.overflow = overflow
         self.key = key
 
-
         # Loop over self.children and add them to the widget tree
         for child in self.children:
             self.add_child(child)  if child else None # Use the add_child method to manage parent-child relationships
-
-        #print("The list of added children: ", self.get_children())  # Check if children were added properly
-    
 
 
     def to_html(self):
@@ -844,56 +1305,30 @@ class Scaffold(Widget):
         for child in children:
             self.add_child(child) if child else None
         
-        
-        
 
 
     def to_html(self):
         appBar_html = self.appBar.to_html() if self.appBar else ""
         body_html = self.body.to_html() if self.body else ""
-        body_id = self.body._id if self.body else ""
+        # body_id = self.body._id if self.body else "" # Not used in JS currently
         floating_action_button_html = self.floatingActionButton.to_html() if self.floatingActionButton else ""
-        bottom_navigation_bar_html = self.bottomNavigationBar.to_html() if self.bottomNavigationBar else ""
+        bottom_navigation_bar_html = self.bottomNavigationBar.to_html() if self.bottomNavigationBar else "" # Ensure this renders id="bottomNav"
         drawer_html = self.drawer.to_html() if self.drawer else ""
         end_drawer_html = self.endDrawer.to_html() if self.endDrawer else ""
         bottom_sheet_html = self.bottomSheet.to_html() if self.bottomSheet else ""
         snack_bar_html = self.snackBar.to_html() if self.snackBar else ""
         footer_buttons_html = ''.join([button.to_html() for button in (self.persistentFooterButtons or [])])
 
+        # Styles are better handled in CSS, but keep if needed for specific overrides
         background_color_style = f"background-color: {self.backgroundColor};"
-        extend_body_style = "position: absolute; top: 56; bottom: 0; left: 0; right: 0;" if self.extendBody or self.extendBodyBehindAppBar else ""
-        body_margin_top = "margin-top: 0px;" if self.appBar and not self.extendBodyBehindAppBar else ""
-
-        
-        if body_html != '':
-            if drawer_html != '':
-                drawer_width = self.drawer.width + self.drawer.padding.to_int_horizontal() + self.drawer.borderRight.to_int()
-                if self.drawer.is_open:
-                    margin_left = '0px'
-                else:
-                    margin_left = f'-{drawer_width}px'
-
-            else:
-                margin_left = '0px'
-                print("Drawer is None")
-
-            if end_drawer_html != '':
-                end_drawer_width = self.endDrawer.width + self.endDrawer.padding.to_int_horizontal() + self.endDrawer.borderLeft.to_int()
-                
-                if self.endDrawer.is_open:
-                    margin_right = '0px'
-                else:
-                    margin_right = f'-{end_drawer_width}px'
-
-            else:
-                margin_right = '0px'
-
-        
+        # These style calculations are complex and might be better handled purely in CSS flexbox/grid
+        # extend_body_style = "position: absolute; top: 56; bottom: 0; left: 0; right: 0;" if self.extendBody or self.extendBodyBehindAppBar else ""
+        # body_margin_top = "margin-top: 0px;" if self.appBar and not self.extendBodyBehindAppBar else ""
 
 
         return f"""
-        <div id="{self.widget_id()}" class="body">
-            {appBar_html}
+        <div id="{self.widget_id()}" class="body" style="{background_color_style}">
+            {appBar_html} 
             <div class="drawer left" id="leftDrawer">
                 {drawer_html}
             </div>
@@ -902,7 +1337,7 @@ class Scaffold(Widget):
                 {end_drawer_html}
             </div>
 
-            <div id="{body_id}" class="content" id="content">
+            <div class="content" id="content">
                 {body_html}
             </div>
 
@@ -912,10 +1347,12 @@ class Scaffold(Widget):
             <div style="position: absolute; bottom: 0; width: 100%; display: flex; justify-content: {self.persistentFooterAlignment};">
                 {footer_buttons_html}
             </div>
-            {bottom_navigation_bar_html}
+            <div id="bottomNav" class="bottom-nav">
+            {bottom_navigation_bar_html} 
+            </div>
         </div>
-        
         """
+        
 
 class Body(Widget):
     def __init__(self, child=None):
@@ -994,18 +1431,28 @@ class Drawer(Widget):
         drawer_width = self.width + self.padding.to_int_horizontal() + self.borderRight.to_int()
         border = self.borderRight.border_to_css() if self.borderRight else ''
         drawer_width = '0px' if self.is_open else f'-{drawer_width}' 
-        #print(drawer_width, self.is_open)
+        print(self.width ,drawer_width, self.is_open)
 
         return f"""
-        <div id="{self.widget_id()}" style="width: {self.width}px; padding: {self.padding.to_css()}; height: 100%; background: {self.backgroundColor}; box-shadow:{self.elevation}; overflow-y: auto; border-right: {border}; transform: translateX({drawer_width}px); transition: transform 0.3s ease;">
+        <div id="{self.widget_id()}" style="width: {self.width}px; padding: {self.padding.to_css()}; height: 100%; background: {self.backgroundColor}; box-shadow:{self.elevation}; overflow-y: auto; border-right: {border};">
             {self.child.to_html()}{divider}
         </div>
         """
 
     def toggle(self, bool=False):
-        self.is_open = bool
+        self.is_open = bool # Update Python state if needed elsewhere
+        framework = self._framework_ref()
+        if framework and framework.window:
+            print(f"Calling JS: toggleDrawer('left'), Target Window ID: {framework.id}") # Debug
+            framework.window.evaluate_js(
+                framework.id,
+                f"toggleDrawer('left');" # Ensure side is correctly passed if needed later ('right')
+            )
+        else:
+             print("Framework or window not available for Drawer toggle JS call.")
 
-        return self.is_open
+        # Return value doesn't seem used, but keep if needed
+        # return self.is_open
 
 
 
@@ -1043,15 +1490,25 @@ class EndDrawer(Widget):
         end_drawer_width = '0px' if self.is_open else end_drawer_width
         border = self.borderLeft.border_to_css() if self.borderLeft else ''
         return f"""
-        <div id="{self.widget_id()}" style="width: {self.width}px; padding: {self.padding.to_css()}; height: 100%; background: {self.backgroundColor}; overflow-y: auto; box-shadow:{self.elevation}; border-left: {border}; transform: translateX({end_drawer_width}px); transition: transform 0.3s ease;">
+        <div id="{self.widget_id()}" style="width: {self.width}px; padding: {self.padding.to_css()}; height: 100%; background: {self.backgroundColor}; overflow-y: auto; box-shadow:{self.elevation}; border-left: {border};">
             {self.child.to_html()}{divider}
         </div>
         """
 
     def toggle(self, bool=False):
-        self.is_open = bool
-        
-        return self.is_open
+        self.is_open = bool # Update Python state if needed elsewhere
+        framework = self._framework_ref()
+        if framework and framework.window:
+            print(f"Calling JS: toggleDrawer('left'), Target Window ID: {framework.id}") # Debug
+            framework.window.evaluate_js(
+                framework.id,
+                f"toggleDrawer('right');" # Ensure side is correctly passed if needed later ('right')
+            )
+        else:
+             print("Framework or window not available for Drawer toggle JS call.")
+
+        # Return value doesn't seem used, but keep if needed
+        # return self.is_open
 
 
 
@@ -1186,6 +1643,7 @@ class SnackBar(Widget):
             self.padding = padding
             self.is_open = False
             self.initialized = True  # Mark the instance as initialized
+            self.current_id = None
 
 
             children = [
@@ -1197,17 +1655,21 @@ class SnackBar(Widget):
                 self.add_child(child) if child else None# Register the child widget with the framework
 
     def to_html(self):
+        self.current_id = self.widget_id()
         action_html = self.action.to_html() if self.action else ""
         display_style = "flex" if self.is_open else "none"
         return f"""
-        <div id="{self.widget_id()}" 
+        <div id="{self.current_id}" 
         style="display: {display_style}; 
-        position: fixed; 
-        bottom: 0; left: 0; 
+        position: absolute; 
+        bottom: 20px; 
+        left: 50%; 
+        transform: translateX(-50%);
         width: calc(100% - 48px); 
         padding: {self.padding.to_css()}; 
         background-color: {self.backgroundColor}; 
-        box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3); 
+        box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3);
+        border-radius: 4px; 
         z-index: 999; 
         justify-content: space-between; 
         align-items: center;">
@@ -1216,6 +1678,8 @@ class SnackBar(Widget):
         </div>
         """
 
+    def get_id(self):
+        return self.current_id
 
     def toggle(self, bool=False):
         self.is_open = bool

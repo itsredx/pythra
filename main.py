@@ -23,19 +23,19 @@ class MyAppState(State):
 
     def open_drawer(self):
         self.openDrawer()
-        self.setState()
+        #self.setState()
 
     def open_end_drawer(self):
         self.openEndDrawer()
-        self.setState()
+        #self.setState()
 
     def close_drawer(self):
         self.closeDrawer()
-        self.setState()
+        #self.setState()
 
     def close_end_drawer(self):
         self.closeEndDrawer()
-        self.setState()
+        #self.setState()
 
     def open_bottom_sheet(self):
         self.openBottomSheet()
@@ -97,6 +97,14 @@ class MyAppState(State):
         # Set the content based on the current index
         body_content = content[self.currentIndex]
 
+        items = [
+            Text(data=f'Item {i}', style=TextStyle(fontSize=16, color=Colors.black)) for i in range(20)
+        ]
+
+        grid_view = GridView(
+            children=items,
+        )
+
         drawer = Drawer(
             child=Row(
                 mainAxisAlignment= MainAxisAlignment.SPACE_BETWEEN,
@@ -108,7 +116,7 @@ class MyAppState(State):
                     Text('Hello'),
                 ]
             ),
-            width=300,
+            width=310,
             divider=Divider(
                 margin=EdgeInsets.symmetric(8, 0)
             ),
@@ -140,18 +148,21 @@ class MyAppState(State):
             content=Text("Item deleted"),
             action=snack_bar_action,
             duration=3,
-            backgroundColor=Colors.darkgrey, 
+            backgroundColor=Colors.pink, 
         ) 
         scaffold = Scaffold(
             appBar=AppBar(
-                title=Text('Bottom Navigation Example'),
+                title=Text(
+                    'Bottom Navigation Example',
+                    style=TextStyle(color=Colors.white)
+                    ),
                 elevation=2,
                 shadowColor=Colors.rgba(0, 0, 0, 0.2),
-                leading=IconButton(
-                    icon=Icon(custom_icon='icons/equalizer.png'),
-                    iconSize=24,
-                    onPressed=self.open_drawer
-                ),
+                #leading=IconButton(
+                #    icon=Icon(custom_icon='icons/equalizer.png'),
+                #    iconSize=24,
+                #    onPressed=self.open_drawer
+                #),
                 actions=[
                     IconButton(
                         icon=Icon('bars'),

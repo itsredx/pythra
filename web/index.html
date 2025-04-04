@@ -1,43 +1,47 @@
 
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>MyApp</title>
-                    <link type="text/css" rel="stylesheet" href="styles.css">
-                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">      
-                    <script src="qwebchannel.js"></script>
-                    <script src="main.js"></script>
-                    <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
-                </head>
-                <body>
-                        
-        <div id="widget_46" class="body">
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>MyApp</title>
+                        <link id="main-stylesheet" type="text/css" rel="stylesheet" href="styles.css?v=1743415480">
+                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+                        <script src="qwebchannel.js"></script>
+                        <script src="main.js"></script>
+                        <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
+                    </head>
+                    <body>
+                            
+        <div id="widget_65" class="body" style="background-color: white;">
             
-        <div id="widget_32" class="app-bar" style="box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);box-shadow: 0 6px 5px rgba(0, 0, 0, 0.2); height: 56px; display: flex; align-items: center; position: relative; z-index: 1;">
-            <div style="margin-left: 16px;">
-        <button id='widget_29' style='border: none; background-color: transparent;' onclick='handleClick("open_drawer")'>
-            <img src='http://localhost:8004/assets/icons/equalizer.png' style='width: 24px; height: 24px; color: None;' />
-        </button>
+        <div id="widget_51" class="app-bar" style="box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);box-shadow: 0 6px 5px rgba(0, 0, 0, 0.2); height: 56px; display: flex; align-items: center; position: relative; z-index: 1;">
+            <div style=""></div>
+            <div style="flex: 1; margin-left: 10px;">
+        <p id="widget_48" class="shared-text-26">
+            Bottom Navigation Example
+        </p>
         </div>
-            <div style="flex: 1; margin-left: 10px;"><p id='widget_27' style=' margin-top: 0px; margin-bottom: 0px;'>Bottom Navigation Example</p></div>
             <div style="flex: 1; text-align: center;"></div>
             <div style="margin-right: 16px;">
-        <button id='widget_31' style='border: none; background-color: transparent;' onclick='handleClick("open_end_drawer")'>
-            <i id='widget_30' class='fa fa-bars' style='font-size: 16px; '></i>
+        <button id="widget_50" class="shared-iconbutton-0" onclick="handleClick('open_end_drawer')">
+            <i id='widget_49' class='fa fa-bars shared-icon-0'></i>
         </button>
         </div>
             
         </div>
-        
+         
             <div class="drawer left" id="leftDrawer">
                 
-        <div id="widget_16" style="width: 300px; padding: 20px 20px 20px 20px; height: 100%; background: white; box-shadow:; overflow-y: auto; border-right: solid 0.1px  ; transform: translateX(-340.2px); transition: transform 0.3s ease;">
-            <div id='widget_14' style='display: flex; flex-direction: row; justify-content: space-between; align-items: center; direction: TextDirection.LTR; vertical-align: text-bottom;width: 100%;'>
-        <button id='widget_12' style='border: none; background-color: transparent;' onclick='handleClick("close_drawer")'>
-            <i id='widget_11' class='fa fa-close' style='font-size: 16px; '></i>
+        <div id="widget_37" style="width: 310px; padding: 20px 20px 20px 20px; height: 100%; background: white; box-shadow:; overflow-y: auto; border-right: solid 0.1px  ;">
+            <div id='widget_35' class='shared-row-0'>
+        <button id="widget_33" class="shared-iconbutton-0" onclick="handleClick('close_drawer')">
+            <i id='widget_32' class='fa fa-close shared-icon-0'></i>
         </button>
-        <p id='widget_13' style=' margin-top: 0px; margin-bottom: 0px;'>Hello</p></div>
-        <hr  id="widget_15" style="height: 1px; background-color: #ccc; border: none; margin: 0px 8px 0px 8px;">
+        
+        <p id="widget_34" class="shared-text-22">
+            Hello
+        </p>
+        </div>
+        <hr  id="widget_36" style="height: 1px; background-color: #ccc; border: none; margin: 0px 8px 0px 8px;">
         
         </div>
         
@@ -45,28 +49,36 @@
 
             <div class="drawer right" id="rightDrawer">
                 
-        <div id="widget_22" style="width: 250px; padding: 20px 20px 20px 20px; height: 100%; background: white; overflow-y: auto; box-shadow:; border-left: solid 0.1px  ; transform: translateX(290.2px); transition: transform 0.3s ease;">
-            <div id='widget_20' style='display: flex; flex-direction: row; justify-content: space-between; align-items: center; direction: TextDirection.LTR; vertical-align: text-bottom;width: 100%;'>
-        <button id='widget_18' style='border: none; background-color: transparent;' onclick='handleClick("close_end_drawer")'>
-            <i id='widget_17' class='fa fa-close' style='font-size: 16px; '></i>
+        <div id="widget_43" style="width: 250px; padding: 20px 20px 20px 20px; height: 100%; background: white; overflow-y: auto; box-shadow:; border-left: solid 0.1px  ;">
+            <div id='widget_41' class='shared-row-0'>
+        <button id="widget_39" class="shared-iconbutton-0" onclick="handleClick('close_end_drawer')">
+            <i id='widget_38' class='fa fa-close shared-icon-0'></i>
         </button>
-        <p id='widget_19' style=' margin-top: 0px; margin-bottom: 0px;'>Hello End</p></div>
-        <hr  id="widget_21" style="height: 1px; background-color: #ccc; border: none; margin: 0px 8px 0px 8px;">
+        
+        <p id="widget_40" class="shared-text-23">
+            Hello End
+        </p>
+        </div>
+        <hr  id="widget_42" style="height: 1px; background-color: #ccc; border: none; margin: 0px 8px 0px 8px;">
         
         </div>
         
             </div>
 
-            <div id="widget_33" class="content" id="content">
+            <div class="content" id="content">
                 
         <div id="widget_8" class="shared-container-0 ">
-            <div id='widget_7' style='display: flex; flex-direction: column; justify-content: flex-start; align-items: center; direction: TextDirection.LTR; vertical-align: text-bottom;width: 100%;'><p id='widget_2' style=' margin-top: 0px; margin-bottom: 0px;'>Welcome to the Home Page!</p>
-        <button id='widget_4' style='border: none; background-color: transparent;' onclick='handleClick("open_bottom_sheet")'>
-            <i id='widget_3' class='fa fa-plus' style='font-size: 16px; '></i>
+            <div id='widget_7' class='shared-column-0'>
+        <p id="widget_2" class="shared-text-0">
+            Welcome to the Home Page!
+        </p>
+        
+        <button id="widget_4" class="shared-iconbutton-0" onclick="handleClick('open_bottom_sheet')">
+            <i id='widget_3' class='fa fa-plus shared-icon-0'></i>
         </button>
         
-        <button id='widget_6' style='border: none; background-color: transparent;' onclick='handleClick("show_snack_bar")'>
-            <i id='widget_5' class='fa fa-flask' style='font-size: 16px; '></i>
+        <button id="widget_6" class="shared-iconbutton-0" onclick="handleClick('show_snack_bar')">
+            <i id='widget_5' class='fa fa-flask shared-icon-0'></i>
         </button>
         </div>
             <div class="foreground-overlay"></div>
@@ -77,36 +89,51 @@
             
             
          
-        <div id="widget_45" style="position: fixed; left: 0; bottom: 0; z-index: 900; width: 100%; height: 300px; padding: 20px 20px 20px 20px; background-color: lightgrey; box-shadow:; transform: translateY(100%); transition: transform 0.3s ease; cursor: grab;">
-            <div id='widget_44' style='display: flex; flex-direction: column; justify-content: flex-start; align-items: center; direction: TextDirection.LTR; vertical-align: text-bottom;width: 100%;'><p id='widget_41' style=' margin-top: 0px; margin-bottom: 0px;'>This is a BottomSheet</p>
-        <button id='widget_43' style='border: none; background-color: transparent;' onclick='handleClick("hide_bottom_sheet")'>
-            <i id='widget_42' class='fa fa-minus' style='font-size: 16px; '></i>
+        <div id="widget_64" style="position: fixed; left: 0; bottom: 0; z-index: 900; width: 100%; height: 300px; padding: 20px 20px 20px 20px; background-color: lightgrey; box-shadow:; transform: translateY(100%); transition: transform 0.3s ease; cursor: grab;">
+            <div id='widget_63' class='shared-column-0'>
+        <p id="widget_60" class="shared-text-29">
+            This is a BottomSheet
+        </p>
+        
+        <button id="widget_62" class="shared-iconbutton-0" onclick="handleClick('hide_bottom_sheet')">
+            <i id='widget_61' class='fa fa-minus shared-icon-0'></i>
         </button>
         </div>
         </div>
         
             
-        <div id="widget_26" 
+        <div id="widget_47" 
         style="display: none; 
-        position: fixed; 
-        bottom: 0; left: 0; 
+        position: absolute; 
+        bottom: 20px; 
+        left: 50%; 
+        transform: translateX(-50%);
         width: calc(100% - 48px); 
         padding: 16px 24px 16px 24px; 
-        background-color: darkgrey; 
-        box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3); 
+        background-color: pink; 
+        box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3);
+        border-radius: 4px; 
         z-index: 999; 
         justify-content: space-between; 
         align-items: center;">
-            <div><p id='widget_25' style=' margin-top: 0px; margin-bottom: 0px;'>Item deleted</p></div>
+            <div>
+        <p id="widget_46" class="shared-text-25">
+            Item deleted
+        </p>
+        </div>
             
-        <button id="widget_24" 
+        <button id="widget_45" 
         onclick="handleClick('undo')" 
         style="background: none; 
         border: none; 
         color: blue; 
         font-size: 14px; 
         cursor: pointer;">
-            <p id='widget_23' style=' margin-top: 0px; margin-bottom: 0px;'>UNDO</p>
+            
+        <p id="widget_44" class="shared-text-24">
+            UNDO
+        </p>
+        
         </button>
         
         </div>
@@ -114,14 +141,23 @@
             <div style="position: absolute; bottom: 0; width: 100%; display: flex; justify-content: center;">
                 
             </div>
+            <div id="bottomNav" class="bottom-nav">
             
-        <div id="widget_40" class="bottom-nav" id="bottomNav">
-            <div onclick='handleClickOnTap("on_tab_selected", 0)' style='color: blue; font-size: 18px; cursor: pointer; flex: 1;'><div id='widget_36' style='text-align: center; '><i id='widget_34' class='fa fa-home' style='font-size: 30px; '></i><div style='color: None;'><p id='widget_35' style=' margin-top: 0px; margin-bottom: 0px;'>Home</p></div></div></div><div onclick='handleClickOnTap("on_tab_selected", 1)' style='color: grey; font-size: 14px; cursor: pointer; flex: 1;'><div id='widget_39' style='text-align: center; '><i id='widget_37' class='fa fa-gear' style='font-size: 30px; '></i><div style='color: #aaa;'><p id='widget_38' style=' margin-top: 0px; margin-bottom: 0px;'>Settings</p></div></div></div>
+        <div id="widget_59" class="bottom-nav" id="bottomNav">
+            <div onclick='handleClickOnTap("on_tab_selected", 0)' style='color: blue; font-size: 18px; cursor: pointer; flex: 1;'><div id='widget_55' style='text-align: center; '><i id='widget_53' class='fa fa-home shared-icon-0'></i><div style='color: None;'>
+        <p id="widget_54" class="shared-text-27">
+            Home
+        </p>
+        </div></div></div><div onclick='handleClickOnTap("on_tab_selected", 1)' style='color: grey; font-size: 14px; cursor: pointer; flex: 1;'><div id='widget_58' style='text-align: center; '><i id='widget_56' class='fa fa-gear shared-icon-0'></i><div style='color: #aaa;'>
+        <p id="widget_57" class="shared-text-28">
+            Settings
+        </p>
+        </div></div></div>
+        </div>
+         
+            </div>
         </div>
         
-        </div>
-        
-        
-                </body>
-                </html>
-                
+                    </body>
+                    </html>
+                    
